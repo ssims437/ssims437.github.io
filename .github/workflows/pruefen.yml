@@ -1,45 +1,55 @@
 name: Prueflauf
 
-# Zwei Fragen, getrennt gestellt: ist die Seite richtig gebaut (bei jedem Push),
-# und antworten die fuenfzehn veroeffentlichten Blaetter noch (taeglich)?
+# Zwei Fragen, ein Lauf:
+#   bei jedem Push  — ist die Seite richtig gebaut (fuenfzehn Karten, Signete, keine Doppelten)?
+#   woechentlich    — antworten die fuenfzehn veroeffentlichten Blaetter noch?
+#
+# Die Adressabfrage laeuft nicht bei jedem Push mit: sie prueft die Welt
+# draussen, nicht diesen Commit, und ist an einem Dienstagvormittag genauso
+# aussagekraeftig wie zwanzig Mal am Tag.
 
 on:
   push:
-  pull_request:
+    paths:
+      - "**.html"
+      - "**.mjs"
+      - ".github/workflows/pruefen.yml"
   workflow_dispatch:
   schedule:
-    # taeglich 06:10 UTC — findet umbenannte Blaetter und haengende Deployments
-    - cron: "10 6 * * *"
+    - cron: "10 6 * * 1"
+
+concurrency:
+  group: pruefen-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  aufbau:
-    name: Aufbau der Seite
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-      - name: Playwright holen
-        run: |
-          npm install --no-save --no-audit --no-fund playwright@1.47.2
-          npx playwright install --with-deps chromium
-      - name: Karten und Signete pruefen
-        run: node .github/pruefen.mjs --nur-aufbau
-
-  adressen:
-    name: Veroeffentlichte Blaetter
+  pruefen:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+
+      - name: Browser aus dem Cache
+        id: browsercache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-1.47.2-${{ runner.os }}
+
       - name: Playwright holen
-        run: |
-          npm install --no-save --no-audit --no-fund playwright@1.47.2
-          npx playwright install --with-deps chromium
-      - name: Alle fuenfzehn Adressen abfragen
+        run: npm install --no-save --no-audit --no-fund playwright@1.47.2
+
+      - name: Chromium holen
+        if: steps.browsercache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium
+
+      - name: Aufbau der Seite pruefen
+        run: node .github/pruefen.mjs --nur-aufbau
+
+      - name: Veroeffentlichte Blaetter abfragen
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: node .github/pruefen.mjs
