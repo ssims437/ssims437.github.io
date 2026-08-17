@@ -1,0 +1,45 @@
+name: Prueflauf
+
+# Zwei Fragen, getrennt gestellt: ist die Seite richtig gebaut (bei jedem Push),
+# und antworten die fuenfzehn veroeffentlichten Blaetter noch (taeglich)?
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # taeglich 06:10 UTC — findet umbenannte Blaetter und haengende Deployments
+    - cron: "10 6 * * *"
+
+jobs:
+  aufbau:
+    name: Aufbau der Seite
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Playwright holen
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.47.2
+          npx playwright install --with-deps chromium
+      - name: Karten und Signete pruefen
+        run: node .github/pruefen.mjs --nur-aufbau
+
+  adressen:
+    name: Veroeffentlichte Blaetter
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Playwright holen
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.47.2
+          npx playwright install --with-deps chromium
+      - name: Alle fuenfzehn Adressen abfragen
+        run: node .github/pruefen.mjs
