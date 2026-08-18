@@ -214,11 +214,15 @@
      fünf Stücke prüfen anders (Datenbericht, oder sie sind selbst der
      Prüfstand), und dann steht das hier auch so. */
   const FELDER = [
-    { name: "Rechnen & Zahlen", farbe: "--g1", text: "was in einer Zahl steckt und was sich damit verbergen lässt", blaetter: [
+    { name: "Zahl & Genauigkeit", farbe: "--g1", text: "was in einer Zahl steckt, was sich damit verbergen lässt und wo sie endet", blaetter: [
       { id: "nachkomma", titel: "Nachkomma", was: "Was in einer Fließkommazahl wirklich steht — IEEE 754, exakt ausgeschrieben per BigInt.",
         beweis: "40 404 Fälle in der Selbstprüfung, keine Stichprobe", knopf: true, signet: "bits" },
+      { id: "wuerfel", titel: "Würfel", was: "Prüfstand für Zufallsgeneratoren: Chi-Quadrat, Korrelation, Periodensuche, drehbarer Würfel.",
+        beweis: "RANDU besteht jeden einfachen Test und fällt im Würfel als Ebenen auf", knopf: false, signet: "wuerfel" },
       { id: "handschlag", titel: "Handschlag", was: "Elliptische Kurven zum Anfassen: Punktaddition, Diffie-Hellman, secp256k1 in echter Größe.",
-        beweis: "182 373 Einzelrechnungen, darunter alle 21 952 Punkt-Tripel", knopf: true, signet: "kurve" }
+        beweis: "182 373 Einzelrechnungen, darunter alle 21 952 Punkt-Tripel", knopf: true, signet: "kurve" },
+      { id: "vorhersage", titel: "Vorhersage", was: "Zwei Pendel, ein Bit Unterschied — und die Grenze der Vorhersagbarkeit, gemessen statt behauptet.",
+        beweis: "deterministisch bis aufs letzte Bit und trotzdem nach 22 Sekunden unvorhersagbar", knopf: true, signet: "gabel" }
     ]},
     { name: "Sprache & Maschine", farbe: "--g6", text: "wie aus Text Befehle werden und aus Befehlen Bewegung", blaetter: [
       { id: "uebersetzer", titel: "Übersetzer", was: "Eine kleine Sprache vom Zeichen bis zur laufenden Maschine: Wörter, Baum, Bytecode, Schritt-Debugger.",
@@ -234,11 +238,17 @@
       { id: "indexbaum", titel: "Indexbaum", was: "B+-Baum mit gezählten Seitenzugriffen: Index gegen vollständigen Durchlauf, und wo der Planer irrt.",
         beweis: "1891 Bereichsabfragen erschöpfend gegen den stumpfen Durchlauf", knopf: true, signet: "baum" }
     ]},
-    { name: "Signale & Zufall", farbe: "--g3", text: "was Messen mit der Wahrheit macht", blaetter: [
+    { name: "Auge & Ohr", farbe: "--g8", text: "wo Messung und Sinneseindruck auseinandergehen", blaetter: [
       { id: "frequenzgang", titel: "Frequenzgang", was: "Eigene FFT, sechs Fensterfunktionen, Leckeffekt und Aliasing — sichtbar und hörbar.",
         beweis: "FFT gegen die Definition, Fensterkennzahlen gegen Harris (1978)", knopf: true, signet: "spektrum" },
-      { id: "wuerfel", titel: "Würfel", was: "Prüfstand für Zufallsgeneratoren: Chi-Quadrat, Korrelation, Periodensuche, drehbarer Würfel.",
-        beweis: "RANDU besteht jeden einfachen Test und fällt im Würfel als Ebenen auf", knopf: false, signet: "wuerfel" },
+      { id: "augenmass", titel: "Augenmaß", was: "Paletten in OKLCH: gleich helle Farben, die auch gleich hell aussehen, mit nachgerechnetem Kontrast.",
+        beweis: "alle 16 777 216 sRGB-Farben hin und zurück — und der Nachweis, dass keine 4,5:1 auf beiden Gründen schafft", knopf: true, signet: "faecher" }
+    ]},
+    { name: "Muster & Form", farbe: "--g7", text: "Regeln, die Form hervorbringen — im Raum, in der Zeit, im Wachstum", blaetter: [
+      { id: "ornament", titel: "Ornament", was: "Die siebzehn Arten, eine Fläche zu füllen: zeichnen, und die Symmetriegruppe macht ein Ornament daraus.",
+        beweis: "3950 Bildpunkte Pixel für Pixel — die Symmetrie am fertigen Bild nachgewiesen", knopf: true, signet: "rosette" },
+      { id: "stimmfuehrung", titel: "Stimmführung", was: "Akkorde zu MIDI mit geführten Stimmen — Blatt und Node-CLI aus derselben Logik.",
+        beweis: "neun Prüfungen, darunter die eigene MIDI-Datei zurückgelesen", knopf: true, signet: "noten" },
       { id: "plotterblaetter", titel: "Plotterblätter", was: "Vier Blätter: Wave Function Collapse, Wellengleichung, Physarum, Lenia.",
         beweis: "kein Prüflauf — hier ist die Regel selbst das Ergebnis", knopf: false, signet: "wellen" }
     ]},
@@ -248,27 +258,13 @@
       { id: "auszaehlung", titel: "Auszählung", was: "Dieselben Stimmen, verschiedene Sieger: Wahlverfahren, Condorcet-Zyklus, Sitzverteilung.",
         beweis: "alle 2002 Stapel mit drei Bewerbern und neun Wählern", knopf: true, signet: "zettel" }
     ]},
-    { name: "Welt messen", farbe: "--g5", text: "Karte, Uhr, Klima — drei Messungen an der Wirklichkeit", blaetter: [
+    { name: "Erde & Zeit", farbe: "--g5", text: "Karte, Uhr, Klima — drei Messungen an der Wirklichkeit", blaetter: [
       { id: "verzerrung", titel: "Verzerrung", was: "Jede Weltkarte lügt, nur verschieden: Flächen-, Winkel- und Längenverzerrung an jedem Punkt.",
         beweis: "9765 Messungen: keine Projektion ist winkel- und flächentreu", knopf: true, signet: "globus" },
       { id: "zeitsprung", titel: "Zeitsprung", was: "Wo die Uhr springt, fehlt und sich wiederholt — Zeitzonen und Sommerzeit per Binärsuche.",
         beweis: "252 Prüfungen über zehn Zonen und vier Jahre", knopf: true, signet: "uhr" },
       { id: "gradtage", titel: "Gradtage", was: "41 Jahre Heiz- und Kühlgradtage aus einer echten Messreihe.",
-        beweis: "Datenbericht statt Modell — die Reihe rechnet, nicht die Annahme", knopf: false, signet: "kurve2" },
-    ]},
-    { name: "Farbe & Wahrnehmung", farbe: "--g8", text: "wo Rechnen und Sehen auseinandergehen", blaetter: [
-      { id: "augenmass", titel: "Augenmaß", was: "Paletten in OKLCH: gleich helle Farben, die auch gleich hell aussehen, mit nachgerechnetem Kontrast.",
-        beweis: "alle 16 777 216 sRGB-Farben hin und zurück — und der Nachweis, dass keine 4,5:1 auf beiden Gründen schafft", knopf: true, signet: "faecher" }
-    ]},
-    { name: "Vorhersage & Grenzen", farbe: "--g9", text: "wo das Rechnen aufhört, etwas zu wissen", blaetter: [
-      { id: "vorhersage", titel: "Vorhersage", was: "Zwei Pendel, ein Bit Unterschied — und die Grenze der Vorhersagbarkeit, gemessen statt behauptet.",
-        beweis: "deterministisch bis aufs letzte Bit und trotzdem nach 22 Sekunden unvorhersagbar", knopf: true, signet: "gabel" }
-    ]},
-    { name: "Muster & Form", farbe: "--g7", text: "Regelwerke, die Schönheit erzwingen — im Raum und in der Zeit", blaetter: [
-      { id: "ornament", titel: "Ornament", was: "Die siebzehn Arten, eine Fläche zu füllen: zeichnen, und die Symmetriegruppe macht ein Ornament daraus.",
-        beweis: "3950 Bildpunkte Pixel für Pixel — die Symmetrie am fertigen Bild nachgewiesen", knopf: true, signet: "rosette" },
-      { id: "stimmfuehrung", titel: "Stimmführung", was: "Akkorde zu MIDI mit geführten Stimmen — Blatt und Node-CLI aus derselben Logik.",
-        beweis: "neun Prüfungen, darunter die eigene MIDI-Datei zurückgelesen", knopf: true, signet: "noten" }
+        beweis: "Datenbericht statt Modell — die Reihe rechnet, nicht die Annahme", knopf: false, signet: "kurve2" }
     ]}
   ];
 
