@@ -23,7 +23,9 @@
     --g6: #8C3A5E;   /* Sprache & Maschine */
     --g7: #4A6B2E;   /* Muster & Form */
     --g8: #1F6B7A;   /* Farbe & Wahrnehmung */
-    --g9: #8A5A1E;   /* Vorhersage & Grenzen */
+    --g9: #8A5A1E;   /* Kraft & Tragen */
+    --g10: #4A5B8C;  /* Schrift & Satz */
+    --o1: #6E7A62; --o2: #6E7A62; --o3: #6E7A62; --o4: #6E7A62;   /* offene Felder */
     --gut:  #4A7A3C;
     --warn: #A32C22;
     --schatten: 0 1px 0 rgba(27,26,22,.05), 0 10px 24px -16px rgba(27,26,22,.5);
@@ -34,7 +36,8 @@
     :root:not([data-theme="light"]) {
       --grund: #131210; --feld: #1B1A16; --tief: #0D0C0A; --linie: #322F27;
       --tinte: #E6E2D6; --leise: #948E7D; --netz: #423D31;
-      --g1: #6CA8E8; --g2: #D9705E; --g3: #58A895; --g4: #B48ADA; --g5: #E0A75E; --g6: #E08AB0; --g7: #9FCB6E; --g8: #5FC2D6; --g9: #E0A75E;
+      --g1: #6CA8E8; --g2: #D9705E; --g3: #58A895; --g4: #B48ADA; --g5: #E0A75E; --g6: #E08AB0; --g7: #9FCB6E; --g8: #5FC2D6; --g9: #E0A75E; --g10: #8FA3D8;
+      --o1: #7C8A70; --o2: #7C8A70; --o3: #7C8A70; --o4: #7C8A70;
       --gut: #7FBF6A; --warn: #E0776B;
       --schatten: 0 1px 0 rgba(255,255,255,.03), 0 12px 30px -18px #000;
     }
@@ -42,7 +45,8 @@
   :root[data-theme="dark"] {
     --grund: #131210; --feld: #1B1A16; --tief: #0D0C0A; --linie: #322F27;
     --tinte: #E6E2D6; --leise: #948E7D; --netz: #423D31;
-    --g1: #6CA8E8; --g2: #D9705E; --g3: #58A895; --g4: #B48ADA; --g5: #E0A75E; --g6: #E08AB0; --g7: #9FCB6E; --g8: #5FC2D6; --g9: #E0A75E;
+    --g1: #6CA8E8; --g2: #D9705E; --g3: #58A895; --g4: #B48ADA; --g5: #E0A75E; --g6: #E08AB0; --g7: #9FCB6E; --g8: #5FC2D6; --g9: #E0A75E; --g10: #8FA3D8;
+      --o1: #7C8A70; --o2: #7C8A70; --o3: #7C8A70; --o4: #7C8A70;
     --gut: #7FBF6A; --warn: #E0776B;
     --schatten: 0 1px 0 rgba(255,255,255,.03), 0 12px 30px -18px #000;
   }
@@ -91,6 +95,11 @@
   a.karte .was { font-size:13.5px; color:var(--tinte); margin-top:1px; }
   a.karte .beweis { font-family:var(--f-fest); font-size:11px; color:var(--leise); margin-top:5px;
     padding-left:9px; border-left:2px solid var(--akzent, var(--g1)); }
+
+  .platz { border:1px dashed var(--linie); padding:14px 16px; color:var(--leise);
+    font-family:var(--f-fest); font-size:12px; background:
+    repeating-linear-gradient(135deg, transparent, transparent 9px, color-mix(in srgb, var(--linie) 22%, transparent) 9px, color-mix(in srgb, var(--linie) 22%, transparent) 10px); }
+  .platz b { color:var(--akzent, var(--leise)); }
 
   .kasten { background:var(--feld); border:1px solid var(--linie); box-shadow:var(--schatten);
     display:flex; flex-direction:column; min-width:0; }
@@ -262,6 +271,10 @@
       { id: "auszaehlung", titel: "Auszählung", was: "Dieselben Stimmen, verschiedene Sieger: Wahlverfahren, Condorcet-Zyklus, Sitzverteilung.",
         beweis: "alle 2002 Stapel mit drei Bewerbern und neun Wählern", knopf: true, signet: "zettel" }
     ]},
+    { name: "Schrift & Satz", farbe: "--g10", text: "wie Text auf die Fläche kommt", blaetter: [
+      { id: "blocksatz", titel: "Blocksatz", was: "Zeilenumbruch als Optimierungsproblem: gierig wie jeder Browser gegen den ganzen Absatz auf einmal.",
+        beweis: "103 264 Aufteilungen einzeln durchprobiert — „optimal\" ist hier kein Werbewort", knopf: true, signet: "spalte" }
+    ]},
     { name: "Erde & Zeit", farbe: "--g5", text: "Karte, Uhr, Klima — drei Messungen an der Wirklichkeit", blaetter: [
       { id: "verzerrung", titel: "Verzerrung", was: "Jede Weltkarte lügt, nur verschieden: Flächen-, Winkel- und Längenverzerrung an jedem Punkt.",
         beweis: "9765 Messungen: keine Projektion ist winkel- und flächentreu", knopf: true, signet: "globus" },
@@ -269,10 +282,19 @@
         beweis: "252 Prüfungen über zehn Zonen und vier Jahre", knopf: true, signet: "uhr" },
       { id: "gradtage", titel: "Gradtage", was: "41 Jahre Heiz- und Kühlgradtage aus einer echten Messreihe.",
         beweis: "Datenbericht statt Modell — die Reihe rechnet, nicht die Annahme", knopf: false, signet: "kurve2" }
-    ]}
+    ]},
+    { name: "Leben & Wachstum", farbe: "--o1", offen: true,
+      text: "Sequenzen vergleichen, Populationen, Ansteckung — wie sich Dinge vermehren und ähneln" },
+    { name: "Spiel & Strategie", farbe: "--o2", offen: true,
+      text: "Zug und Gegenzug, gelöste Spiele, wann Aufgeben die richtige Antwort ist" },
+    { name: "Markt & Risiko", farbe: "--o3", offen: true,
+      text: "Zins, Auktion, Versicherung — was Geld über Zeit und Unsicherheit verrät" },
+    { name: "Licht & Optik", farbe: "--o4", offen: true,
+      text: "Brechung, Linsen, warum der Regenbogen bei zweiundvierzig Grad steht" }
   ];
 
-  const ALLE = FELDER.flatMap((f) => f.blaetter.map((b) => ({ ...b, farbe: f.farbe })));
+  const ALLE = FELDER.filter((f) => !f.offen)
+    .flatMap((f) => f.blaetter.map((b) => ({ ...b, farbe: f.farbe })));
 
   /* ===================== Signets =====================
      Ein kleines gezeichnetes Zeichen je Blatt. Kein Bild, keine Schriftart —
@@ -429,6 +451,20 @@
       }
       g.stroke();
     },
+    spalte: (g, s, f) => {
+      // eine Spalte Text: gleichmäßige Zeilen, eine davon zu locker
+      g.fillStyle = f;
+      const zeilen = [.86, .92, .5, .9, .88, .62];
+      zeilen.forEach((b, i) => {
+        g.globalAlpha = b < .7 ? .4 : .85;
+        g.fillRect(s * .12, s * (.18 + i * .12), s * .76 * b, s * .055);
+      });
+      g.globalAlpha = 1;
+      g.strokeStyle = f; g.lineWidth = 1; g.globalAlpha = .45;
+      g.setLineDash([2, 3]);
+      g.beginPath(); g.moveTo(s * .88, s * .12); g.lineTo(s * .88, s * .9); g.stroke();
+      g.setLineDash([]); g.globalAlpha = 1;
+    },
     fachwerk: (g, s, f) => {
       // ein Trägerchen aus Dreiecken, wie im Blatt
       g.strokeStyle = f; g.lineWidth = 1.3;
@@ -546,6 +582,14 @@
       const h = document.createElement("h2");
       h.innerHTML = "<span class='feld'>" + feld.name + "</span> · " + feld.text;
       ziel.append(h);
+      if (feld.offen) {
+        const platz = document.createElement("div");
+        platz.className = "platz";
+        platz.style.setProperty("--akzent", "var(" + feld.farbe + ")");
+        platz.innerHTML = "<b>noch leer</b> — hier ist Platz für ein Blatt";
+        ziel.append(platz);
+        continue;
+      }
       const gitter = document.createElement("div");
       gitter.className = "karten";
       for (const b of feld.blaetter) {
@@ -644,7 +688,11 @@
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", neuZeichnen);
 
   aufbauen();
-  $("zaehler").textContent = `${ALLE.length} Blätter · ${FELDER.length} Felder · je ein Repo, je ein Prüflauf`;
+  {
+    const offen = FELDER.filter((f) => f.offen).length;
+    $("zaehler").textContent = `${ALLE.length} Blätter · ${FELDER.length - offen} Felder · ` +
+      `${offen} offene Felder warten auf ihr erstes Blatt`;
+  }
 })();
 </script>
 </body>
