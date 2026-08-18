@@ -290,9 +290,13 @@
       { id: "abgleich", titel: "Abgleich", was: "Wie ähnlich zwei Folgen sind: Erbgut, Textfassungen, Tippfehler — alles dieselbe Matrix.",
         beweis: "161 850 Ausrichtungen einzeln aufgezählt · kein Unterschied zur Matrix", knopf: true, signet: "gitter" }
     ]},
-    { name: "Spiel & Strategie", farbe: "--g12", text: "Zug und Gegenzug, zu Ende gerechnet", blaetter: [
+    { name: "Spiel & Strategie", farbe: "--g12", text: "Zug und Gegenzug — gelöst, gemischt, wiederholt", blaetter: [
       { id: "spielbaum", titel: "Spielbaum", was: "Nim mit beweisbarer Gewinnformel, Tic-Tac-Toe vollständig gelöst — mit Alpha-Beta zum Zusehen.",
-        beweis: "4096 Nim-Stellungen rückwärts durchgerechnet · 5478 Stellungen, 255 168 Partien gezählt", knopf: true, signet: "hoelzer" }
+        beweis: "4096 Nim-Stellungen rückwärts durchgerechnet · 5478 Stellungen, 255 168 Partien gezählt", knopf: true, signet: "hoelzer" },
+      { id: "mischung", titel: "Mischung", was: "Wenn kein Zug der beste ist: der Wert eines Nullsummenspiels und die Mischung als Punkt im Dreieck.",
+        beweis: "Simplex gegen die erschöpfende Aufzählung aller Trägermengen", knopf: true, signet: "dreieck" },
+      { id: "turnier", titel: "Turnier", was: "Das wiederholte Gefangenendilemma: zehn Strategien, Rauschen, und die Evolution über Generationen.",
+        beweis: "die Einladungsschwelle gemessen und hergeleitet — Abstand 4·10⁻¹⁷", knopf: true, signet: "gitterduell" }
     ]},
     { name: "Markt & Risiko", farbe: "--g13", text: "was Geld über Zeit verrät", blaetter: [
       { id: "tilgung", titel: "Tilgung", was: "Was ein Kredit wirklich kostet: Zins gegen Tilgung über die Laufzeit, Effektivzins, Sondertilgung.",
@@ -475,6 +479,36 @@
       g.setLineDash([2, 3]);
       g.beginPath(); g.moveTo(s * .88, s * .12); g.lineTo(s * .88, s * .9); g.stroke();
       g.setLineDash([]); g.globalAlpha = 1;
+    },
+    dreieck: (g, s, f) => {
+      // der Raum aller Mischungen, mit dem Gleichgewicht darin
+      g.strokeStyle = f; g.lineWidth = 1.3;
+      const P = [[s * .5, s * .14], [s * .13, s * .84], [s * .87, s * .84]];
+      g.beginPath(); g.moveTo(...P[0]); g.lineTo(...P[1]); g.lineTo(...P[2]); g.closePath();
+      g.globalAlpha = .12; g.fillStyle = f; g.fill();
+      g.globalAlpha = 1; g.stroke();
+      const m = [(P[0][0] + P[1][0] + P[2][0]) / 3, (P[0][1] + P[1][1] + P[2][1]) / 3];
+      g.globalAlpha = .35; g.lineWidth = .8;
+      for (const p of P) { g.beginPath(); g.moveTo(...p); g.lineTo(...m); g.stroke(); }
+      g.globalAlpha = 1;
+      g.fillStyle = f;
+      g.beginPath(); g.arc(m[0], m[1], s * .055, 0, 7); g.fill();
+    },
+    gitterduell: (g, s, f) => {
+      // zwei Reihen Züge: oben durchgehend nett, unten mit einem Ausrutscher
+      const oben = [1, 1, 1, 1, 1, 1, 1, 1];
+      const unten = [1, 1, 1, 0, 1, 0, 1, 1];
+      [oben, unten].forEach((reihe, r) => {
+        reihe.forEach((v, k) => {
+          g.fillStyle = f;
+          g.globalAlpha = v ? .85 : .22;
+          g.fillRect(s * (.11 + k * .098), s * (.3 + r * .24), s * .078, s * .17);
+        });
+      });
+      g.globalAlpha = 1;
+      g.strokeStyle = f; g.lineWidth = 1; g.globalAlpha = .4;
+      g.beginPath(); g.moveTo(s * .11, s * .25); g.lineTo(s * .89, s * .25); g.stroke();
+      g.globalAlpha = 1;
     },
     gitter: (g, s, f) => {
       // eine Matrix mit dem Rückweg als Diagonale
