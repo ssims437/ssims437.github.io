@@ -22,6 +22,8 @@
     --g5: #B4762A;   /* Welt messen */
     --g6: #8C3A5E;   /* Sprache & Maschine */
     --g7: #4A6B2E;   /* Muster & Form */
+    --g8: #1F6B7A;   /* Farbe & Wahrnehmung */
+    --g9: #8A5A1E;   /* Vorhersage & Grenzen */
     --gut:  #4A7A3C;
     --warn: #A32C22;
     --schatten: 0 1px 0 rgba(27,26,22,.05), 0 10px 24px -16px rgba(27,26,22,.5);
@@ -32,7 +34,7 @@
     :root:not([data-theme="light"]) {
       --grund: #131210; --feld: #1B1A16; --tief: #0D0C0A; --linie: #322F27;
       --tinte: #E6E2D6; --leise: #948E7D; --netz: #423D31;
-      --g1: #6CA8E8; --g2: #D9705E; --g3: #58A895; --g4: #B48ADA; --g5: #E0A75E; --g6: #E08AB0; --g7: #9FCB6E;
+      --g1: #6CA8E8; --g2: #D9705E; --g3: #58A895; --g4: #B48ADA; --g5: #E0A75E; --g6: #E08AB0; --g7: #9FCB6E; --g8: #5FC2D6; --g9: #E0A75E;
       --gut: #7FBF6A; --warn: #E0776B;
       --schatten: 0 1px 0 rgba(255,255,255,.03), 0 12px 30px -18px #000;
     }
@@ -40,7 +42,7 @@
   :root[data-theme="dark"] {
     --grund: #131210; --feld: #1B1A16; --tief: #0D0C0A; --linie: #322F27;
     --tinte: #E6E2D6; --leise: #948E7D; --netz: #423D31;
-    --g1: #6CA8E8; --g2: #D9705E; --g3: #58A895; --g4: #B48ADA; --g5: #E0A75E; --g6: #E08AB0; --g7: #9FCB6E;
+    --g1: #6CA8E8; --g2: #D9705E; --g3: #58A895; --g4: #B48ADA; --g5: #E0A75E; --g6: #E08AB0; --g7: #9FCB6E; --g8: #5FC2D6; --g9: #E0A75E;
     --gut: #7FBF6A; --warn: #E0776B;
     --schatten: 0 1px 0 rgba(255,255,255,.03), 0 12px 30px -18px #000;
   }
@@ -254,6 +256,14 @@
       { id: "gradtage", titel: "Gradtage", was: "41 Jahre Heiz- und Kühlgradtage aus einer echten Messreihe.",
         beweis: "Datenbericht statt Modell — die Reihe rechnet, nicht die Annahme", knopf: false, signet: "kurve2" },
     ]},
+    { name: "Farbe & Wahrnehmung", farbe: "--g8", text: "wo Rechnen und Sehen auseinandergehen", blaetter: [
+      { id: "augenmass", titel: "Augenmaß", was: "Paletten in OKLCH: gleich helle Farben, die auch gleich hell aussehen, mit nachgerechnetem Kontrast.",
+        beweis: "alle 16 777 216 sRGB-Farben hin und zurück — und der Nachweis, dass keine 4,5:1 auf beiden Gründen schafft", knopf: true, signet: "faecher" }
+    ]},
+    { name: "Vorhersage & Grenzen", farbe: "--g9", text: "wo das Rechnen aufhört, etwas zu wissen", blaetter: [
+      { id: "vorhersage", titel: "Vorhersage", was: "Zwei Pendel, ein Bit Unterschied — und die Grenze der Vorhersagbarkeit, gemessen statt behauptet.",
+        beweis: "deterministisch bis aufs letzte Bit und trotzdem nach 22 Sekunden unvorhersagbar", knopf: true, signet: "gabel" }
+    ]},
     { name: "Muster & Form", farbe: "--g7", text: "Regelwerke, die Schönheit erzwingen — im Raum und in der Zeit", blaetter: [
       { id: "ornament", titel: "Ornament", was: "Die siebzehn Arten, eine Fläche zu füllen: zeichnen, und die Symmetriegruppe macht ein Ornament daraus.",
         beweis: "3950 Bildpunkte Pixel für Pixel — die Symmetrie am fertigen Bild nachgewiesen", knopf: true, signet: "rosette" },
@@ -418,6 +428,32 @@
         i ? g.lineTo(px, py) : g.moveTo(px, py);
       }
       g.stroke();
+    },
+    faecher: (g, s, f) => {
+      for (let i = 0; i < 5; i++) {
+        g.save();
+        g.translate(s * .5, s * .82);
+        g.rotate((i - 2) * 0.34);
+        g.fillStyle = f;
+        g.globalAlpha = 0.35 + i * 0.14;
+        g.fillRect(-s * .055, -s * .62, s * .11, s * .52);
+        g.restore();
+      }
+      g.globalAlpha = 1;
+    },
+    gabel: (g, s, f) => {
+      g.strokeStyle = f; g.lineWidth = 1.4;
+      for (const vz of [1, -1]) {
+        g.beginPath();
+        for (let i = 0; i <= 40; i++) {
+          const x = i / 40;
+          const auf = Math.max(0, x - 0.45);
+          const y = 0.5 + vz * (auf * auf * 3.2) + Math.sin(x * 9) * 0.03;
+          const px = s * (0.08 + x * 0.84), py = s * Math.min(0.95, Math.max(0.05, y));
+          i ? g.lineTo(px, py) : g.moveTo(px, py);
+        }
+        g.stroke();
+      }
     },
     rosette: (g, s, f) => {
       g.strokeStyle = f; g.lineWidth = 1.2;
