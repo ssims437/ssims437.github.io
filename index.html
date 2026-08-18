@@ -25,7 +25,10 @@
     --g8: #1F6B7A;   /* Farbe & Wahrnehmung */
     --g9: #8A5A1E;   /* Kraft & Tragen */
     --g10: #4A5B8C;  /* Schrift & Satz */
-    --o1: #6E7A62; --o2: #6E7A62; --o3: #6E7A62; --o4: #6E7A62;   /* offene Felder */
+    --g11: #2E7A52; /* Leben & Wachstum */
+    --g12: #5E2E7A; /* Spiel & Strategie */
+    --g13: #7A3A2E; /* Markt & Risiko */
+    --g14: #2A6BB4; /* Licht & Optik */
     --gut:  #4A7A3C;
     --warn: #A32C22;
     --schatten: 0 1px 0 rgba(27,26,22,.05), 0 10px 24px -16px rgba(27,26,22,.5);
@@ -283,14 +286,22 @@
       { id: "gradtage", titel: "Gradtage", was: "41 Jahre Heiz- und Kühlgradtage aus einer echten Messreihe.",
         beweis: "Datenbericht statt Modell — die Reihe rechnet, nicht die Annahme", knopf: false, signet: "kurve2" }
     ]},
-    { name: "Leben & Wachstum", farbe: "--o1", offen: true,
-      text: "Sequenzen vergleichen, Populationen, Ansteckung — wie sich Dinge vermehren und ähneln" },
-    { name: "Spiel & Strategie", farbe: "--o2", offen: true,
-      text: "Zug und Gegenzug, gelöste Spiele, wann Aufgeben die richtige Antwort ist" },
-    { name: "Markt & Risiko", farbe: "--o3", offen: true,
-      text: "Zins, Auktion, Versicherung — was Geld über Zeit und Unsicherheit verrät" },
-    { name: "Licht & Optik", farbe: "--o4", offen: true,
-      text: "Brechung, Linsen, warum der Regenbogen bei zweiundvierzig Grad steht" }
+    { name: "Leben & Wachstum", farbe: "--g11", text: "wie sich Dinge ähneln und verändern", blaetter: [
+      { id: "abgleich", titel: "Abgleich", was: "Wie ähnlich zwei Folgen sind: Erbgut, Textfassungen, Tippfehler — alles dieselbe Matrix.",
+        beweis: "161 850 Ausrichtungen einzeln aufgezählt · kein Unterschied zur Matrix", knopf: true, signet: "gitter" }
+    ]},
+    { name: "Spiel & Strategie", farbe: "--g12", text: "Zug und Gegenzug, zu Ende gerechnet", blaetter: [
+      { id: "spielbaum", titel: "Spielbaum", was: "Nim mit beweisbarer Gewinnformel, Tic-Tac-Toe vollständig gelöst — mit Alpha-Beta zum Zusehen.",
+        beweis: "4096 Nim-Stellungen rückwärts durchgerechnet · 5478 Stellungen, 255 168 Partien gezählt", knopf: true, signet: "hoelzer" }
+    ]},
+    { name: "Markt & Risiko", farbe: "--g13", text: "was Geld über Zeit verrät", blaetter: [
+      { id: "tilgung", titel: "Tilgung", was: "Was ein Kredit wirklich kostet: Zins gegen Tilgung über die Laufzeit, Effektivzins, Sondertilgung.",
+        beweis: "224 Parametersätze, jeder Plan auf den Cent geschlossen · Effektivzins auf zwei Wegen", knopf: true, signet: "saeulen" }
+    ]},
+    { name: "Licht & Optik", farbe: "--g14", text: "was Licht an Grenzflächen tut", blaetter: [
+      { id: "regenbogen", titel: "Regenbogen", was: "Warum er bei 42 Grad steht: Strahlen durch den Tropfen, der Winkel als Extremwert, ein gerechneter Himmel.",
+        beweis: "256 000 Strahlen · 0 davon landen in Alexanders dunklem Band", knopf: true, signet: "bogen" }
+    ]}
   ];
 
   const ALLE = FELDER.filter((f) => !f.offen)
@@ -464,6 +475,83 @@
       g.setLineDash([2, 3]);
       g.beginPath(); g.moveTo(s * .88, s * .12); g.lineTo(s * .88, s * .9); g.stroke();
       g.setLineDash([]); g.globalAlpha = 1;
+    },
+    gitter: (g, s, f) => {
+      // eine Matrix mit dem Rückweg als Diagonale
+      g.strokeStyle = f; g.lineWidth = .7; g.globalAlpha = .45;
+      for (let i = 0; i <= 6; i++) {
+        g.beginPath(); g.moveTo(s * .14, s * (.16 + i * .115)); g.lineTo(s * .86, s * (.16 + i * .115)); g.stroke();
+        g.beginPath(); g.moveTo(s * (.14 + i * .12), s * .16); g.lineTo(s * (.14 + i * .12), s * .85); g.stroke();
+      }
+      g.globalAlpha = .16; g.fillStyle = f;
+      for (let i = 0; i < 6; i++) for (let j = 0; j < 6; j++) {
+        if ((i + j) % 3 === 0) continue;
+        g.globalAlpha = .05 + Math.min(i, j) * .045;
+        g.fillRect(s * (.14 + j * .12), s * (.16 + i * .115), s * .12, s * .115);
+      }
+      g.globalAlpha = 1;
+      g.strokeStyle = f; g.lineWidth = 1.8;
+      g.beginPath();
+      g.moveTo(s * .2, s * .215); g.lineTo(s * .62, s * .62);
+      g.lineTo(s * .62, s * .735); g.lineTo(s * .8, s * .79);
+      g.stroke();
+      g.fillStyle = f;
+      g.beginPath(); g.arc(s * .8, s * .79, s * .05, 0, 7); g.fill();
+    },
+    hoelzer: (g, s, f) => {
+      // drei Reihen Hölzer, in der letzten fehlen welche
+      const reihen = [3, 5, 4];
+      g.lineWidth = 1.6;
+      reihen.forEach((n, i) => {
+        const y = s * (.26 + i * .24);
+        for (let k = 0; k < n; k++) {
+          const weg = i === 2 && k >= 2;
+          g.globalAlpha = weg ? .22 : 1;
+          g.strokeStyle = f;
+          const x = s * (.18 + k * .14);
+          g.beginPath(); g.moveTo(x, y - s * .09); g.lineTo(x, y + s * .09); g.stroke();
+          g.fillStyle = f;
+          g.beginPath(); g.arc(x, y - s * .09, s * .035, 0, 7); g.fill();
+        }
+      });
+      g.globalAlpha = 1;
+    },
+    saeulen: (g, s, f) => {
+      // Zins schrumpft, Tilgung wächst — und die Restschuld fällt
+      const n = 9;
+      for (let i = 0; i < n; i++) {
+        const x = s * (.13 + i * .083);
+        const hoch = s * .42;
+        const zins = hoch * (1 - i / (n - .6));
+        g.fillStyle = f; g.globalAlpha = .8;
+        g.fillRect(x, s * .78 - zins, s * .058, zins);
+        g.globalAlpha = .3;
+        g.fillRect(x, s * .78 - hoch, s * .058, hoch - zins);
+      }
+      g.globalAlpha = 1;
+      g.strokeStyle = f; g.lineWidth = 1.4;
+      g.beginPath();
+      for (let i = 0; i <= 20; i++) {
+        const t = i / 20;
+        const x = s * (.15 + t * .72);
+        const y = s * (.2 + (1 - Math.pow(1 - t, 1.8)) * .58);
+        i ? g.lineTo(x, y) : g.moveTo(x, y);
+      }
+      g.stroke();
+    },
+    bogen: (g, s, f) => {
+      // zwei Bögen mit einem leeren Band dazwischen
+      g.lineWidth = 2.6;
+      for (const [r, a] of [[.34, 1], [.52, .45]]) {
+        g.strokeStyle = f; g.globalAlpha = a;
+        g.beginPath(); g.arc(s * .5, s * .96, s * r, Math.PI * 1.12, Math.PI * 1.88); g.stroke();
+      }
+      g.globalAlpha = .3; g.lineWidth = 1;
+      g.setLineDash([2, 3]);
+      g.beginPath(); g.arc(s * .5, s * .96, s * .43, Math.PI * 1.15, Math.PI * 1.85); g.stroke();
+      g.setLineDash([]); g.globalAlpha = 1;
+      g.fillStyle = f;
+      g.beginPath(); g.arc(s * .5, s * .96, s * .05, 0, 7); g.fill();
     },
     fachwerk: (g, s, f) => {
       // ein Trägerchen aus Dreiecken, wie im Blatt
@@ -690,8 +778,9 @@
   aufbauen();
   {
     const offen = FELDER.filter((f) => f.offen).length;
-    $("zaehler").textContent = `${ALLE.length} Blätter · ${FELDER.length - offen} Felder · ` +
-      `${offen} offene Felder warten auf ihr erstes Blatt`;
+    $("zaehler").textContent = `${ALLE.length} Blätter · ${FELDER.length - offen} Felder` +
+      (offen ? ` · ${offen} offene Felder warten auf ihr erstes Blatt`
+             : ` · jedes Feld hat sein Blatt`);
   }
 })();
 </script>

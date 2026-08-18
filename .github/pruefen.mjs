@@ -24,7 +24,8 @@ const WURZEL = process.cwd();
 const NUR_AUFBAU = process.argv.includes("--nur-aufbau");
 const ERWARTET = ["plotterblaetter", "redundanz", "reparatur", "wuerfel", "rechenwerk",
   "nachkomma", "zeitsprung", "gradtage", "stimmfuehrung", "verzerrung",
-  "handschlag", "wegewahl", "frequenzgang", "indexbaum", "auszaehlung", "uebersetzer", "ornament", "augenmass", "vorhersage", "tragwerk", "blocksatz"];
+  "handschlag", "wegewahl", "frequenzgang", "indexbaum", "auszaehlung", "uebersetzer", "ornament", "augenmass", "vorhersage", "tragwerk", "blocksatz",
+  "abgleich", "spielbaum", "tilgung", "regenbogen"];
 
 const beanstandungen = [];
 const meldung = (t) => { beanstandungen.push(t); console.log(`  ✗ ${t}`); };
