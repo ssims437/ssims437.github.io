@@ -1,8 +1,8 @@
 /* Die Sammelseite kann sich nicht selbst prüfen wie ein Blatt: ihr Prüflauf
-   holt die fünfzehn Blätter, und die liegen in fremden Repos. Also prüft die CI
+   holt alle Blätter, und die liegen in fremden Repos. Also prüft die CI
    zwei Dinge getrennt:
 
-     1. den Bau der Seite selbst — fünfzehn Karten, jede mit gültiger Adresse,
+     1. den Bau der Seite selbst — eine Karte je Blatt, jede mit gültiger Adresse,
         keine Doppelten, keine Fehlenden, kein Konsolenfehler
      2. die veröffentlichten Blätter — jede Adresse muss antworten und den
         erwarteten Titel tragen
@@ -24,7 +24,7 @@ const WURZEL = process.cwd();
 const NUR_AUFBAU = process.argv.includes("--nur-aufbau");
 const ERWARTET = ["plotterblaetter", "redundanz", "reparatur", "wuerfel", "rechenwerk",
   "nachkomma", "zeitsprung", "gradtage", "stimmfuehrung", "verzerrung",
-  "handschlag", "wegewahl", "frequenzgang", "indexbaum", "auszaehlung"];
+  "handschlag", "wegewahl", "frequenzgang", "indexbaum", "auszaehlung", "uebersetzer"];
 
 const beanstandungen = [];
 const meldung = (t) => { beanstandungen.push(t); console.log(`  ✗ ${t}`); };

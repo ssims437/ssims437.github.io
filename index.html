@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="utf-8" />
-<title>Blätter — fünfzehn Stücke, jedes rechnet sich selbst nach</title>
+<title>Blätter — jedes rechnet sich selbst nach</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="description" content="Eine Sammlung eigenständiger Blätter: je eine HTML-Datei ohne Build und ohne Bibliothek, mit eingebautem Prüflauf — von elliptischen Kurven über B+-Bäume bis zu Wahlverfahren." />
 
@@ -20,6 +20,7 @@
     --g3: #2E6B5E;   /* Signale & Zufall */
     --g4: #7A4E9A;   /* Wege & Entscheidungen */
     --g5: #B4762A;   /* Welt messen */
+    --g6: #8C3A5E;   /* Sprache & Maschine */
     --gut:  #4A7A3C;
     --warn: #A32C22;
     --schatten: 0 1px 0 rgba(27,26,22,.05), 0 10px 24px -16px rgba(27,26,22,.5);
@@ -30,7 +31,7 @@
     :root:not([data-theme="light"]) {
       --grund: #131210; --feld: #1B1A16; --tief: #0D0C0A; --linie: #322F27;
       --tinte: #E6E2D6; --leise: #948E7D; --netz: #423D31;
-      --g1: #6CA8E8; --g2: #D9705E; --g3: #58A895; --g4: #B48ADA; --g5: #E0A75E;
+      --g1: #6CA8E8; --g2: #D9705E; --g3: #58A895; --g4: #B48ADA; --g5: #E0A75E; --g6: #E08AB0;
       --gut: #7FBF6A; --warn: #E0776B;
       --schatten: 0 1px 0 rgba(255,255,255,.03), 0 12px 30px -18px #000;
     }
@@ -38,7 +39,7 @@
   :root[data-theme="dark"] {
     --grund: #131210; --feld: #1B1A16; --tief: #0D0C0A; --linie: #322F27;
     --tinte: #E6E2D6; --leise: #948E7D; --netz: #423D31;
-    --g1: #6CA8E8; --g2: #D9705E; --g3: #58A895; --g4: #B48ADA; --g5: #E0A75E;
+    --g1: #6CA8E8; --g2: #D9705E; --g3: #58A895; --g4: #B48ADA; --g5: #E0A75E; --g6: #E08AB0;
     --gut: #7FBF6A; --warn: #E0776B;
     --schatten: 0 1px 0 rgba(255,255,255,.03), 0 12px 30px -18px #000;
   }
@@ -115,7 +116,7 @@
 <main class="blatt">
 
   <p class="marke">Werkstatt · ssims437</p>
-  <h1>Fünfzehn Blätter, jedes <span>rechnet sich selbst nach</span></h1>
+  <h1>Blätter, von denen jedes <span>sich selbst nachrechnet</span></h1>
   <p class="vorspann">
     Kein Baukasten, keine Bibliothek, kein Build: jedes Stück hier ist <b>eine einzelne
     HTML-Datei</b>, die man weitergeben kann und die dann noch funktioniert. Und jedes trägt
@@ -125,7 +126,7 @@
   </p>
 
   <div class="leiste">
-    <span class="kl">15 Blätter · 5 Felder · je ein Repo</span>
+    <span class="kl" id="zaehler">je ein Repo, je ein Prüflauf</span>
     <span style="flex:1"></span>
     <button id="b-thema">Ansicht</button>
   </div>
@@ -140,7 +141,7 @@
     <div class="kasten-leib">
       <p class="hinweis">
         Eine Sammelseite, die auf tote Adressen zeigt, ist schlimmer als keine. Der Prüflauf holt
-        deshalb <b>jedes der fünfzehn Blätter</b> und rechnet nach, was sich nachrechnen lässt:
+        deshalb <b>jedes einzelne Blatt</b> und rechnet nach, was sich nachrechnen lässt:
         ist die Adresse erreichbar, trägt die Seite den erwarteten Titel, verweist sie
         <b>zurück</b> auf diese Sammelseite, und hat sie — wo es einen gibt — ihren eigenen
         Prüfknopf noch an Bord. Genau die Art Drift, die ein Netz aus 210 Querverweisen
@@ -210,13 +211,17 @@
      fünf Stücke prüfen anders (Datenbericht, oder sie sind selbst der
      Prüfstand), und dann steht das hier auch so. */
   const FELDER = [
-    { name: "Rechnen & Zahlen", farbe: "--g1", text: "von einem NAND-Gatter bis zur Kurve über einem endlichen Körper", blaetter: [
-      { id: "rechenwerk", titel: "Rechenwerk", was: "Ein Computer aus NAND-Gattern — Addierer, Register, Takt, bis auf das einzelne Gatter zu öffnen.",
-        beweis: "525 056 Fälle geprüft: ADD, SUB, AND, OR über alle 65 536 Bytepaare", knopf: true, signet: "nand" },
+    { name: "Rechnen & Zahlen", farbe: "--g1", text: "was in einer Zahl steckt und was sich damit verbergen lässt", blaetter: [
       { id: "nachkomma", titel: "Nachkomma", was: "Was in einer Fließkommazahl wirklich steht — IEEE 754, exakt ausgeschrieben per BigInt.",
         beweis: "40 404 Fälle in der Selbstprüfung, keine Stichprobe", knopf: true, signet: "bits" },
       { id: "handschlag", titel: "Handschlag", was: "Elliptische Kurven zum Anfassen: Punktaddition, Diffie-Hellman, secp256k1 in echter Größe.",
         beweis: "182 373 Einzelrechnungen, darunter alle 21 952 Punkt-Tripel", knopf: true, signet: "kurve" }
+    ]},
+    { name: "Sprache & Maschine", farbe: "--g6", text: "wie aus Text Befehle werden und aus Befehlen Bewegung", blaetter: [
+      { id: "uebersetzer", titel: "Übersetzer", was: "Eine kleine Sprache vom Zeichen bis zur laufenden Maschine: Wörter, Baum, Bytecode, Schritt-Debugger.",
+        beweis: "zwei Parser, zwei Auswerter, 1200 zufällige Programme — und 10 000 zerstörte Quelltexte ohne Absturz", knopf: true, signet: "baum2" },
+      { id: "rechenwerk", titel: "Rechenwerk", was: "Ein Computer aus NAND-Gattern — Addierer, Register, Takt, bis auf das einzelne Gatter zu öffnen.",
+        beweis: "525 056 Fälle geprüft: ADD, SUB, AND, OR über alle 65 536 Bytepaare", knopf: true, signet: "nand" }
     ]},
     { name: "Daten & Speicher", farbe: "--g2", text: "kleiner machen, kaputtes reparieren, schnell wiederfinden", blaetter: [
       { id: "redundanz", titel: "Redundanz", was: "Kompression von Grund auf: LZ77 und Huffman, echter Bitstrom, Bitkosten je Zeichen sichtbar.",
@@ -409,6 +414,23 @@
       }
       g.stroke();
     },
+    baum2: (g, s, f) => {
+      g.strokeStyle = f; g.lineWidth = 1.3; g.fillStyle = f;
+      // oben der Baum
+      g.beginPath();
+      g.moveTo(s * .5, s * .18); g.lineTo(s * .26, s * .42);
+      g.moveTo(s * .5, s * .18); g.lineTo(s * .74, s * .42);
+      g.moveTo(s * .26, s * .42); g.lineTo(s * .16, s * .58);
+      g.moveTo(s * .26, s * .42); g.lineTo(s * .38, s * .58);
+      g.stroke();
+      for (const [x, y] of [[.5,.18],[.26,.42],[.74,.42],[.16,.58],[.38,.58]]) {
+        g.beginPath(); g.arc(s * x, s * y, s * .045, 0, 7); g.fill();
+      }
+      // unten die Befehlsreihe
+      g.globalAlpha = .6;
+      for (let i = 0; i < 4; i++) g.fillRect(s * (.14 + i * .19), s * .76, s * .13, s * .08);
+      g.globalAlpha = 1;
+    },
     noten: (g, s, f) => {
       g.strokeStyle = f; g.lineWidth = 1; g.globalAlpha = .4;
       for (let i = 0; i < 4; i++) {
@@ -523,7 +545,7 @@
     knopf.disabled = false;
     $("pruef-fuss").innerHTML = fehler === 0
       ? "<b>" + geprueft + " Blätter geprüft, alles in Ordnung.</b> Jede Adresse antwortet, jeder " +
-        "Titel passt, jedes Blatt verweist auf diese Seite zurück — und die zehn Blätter mit " +
+        "Titel passt, jedes Blatt verweist auf diese Seite zurück — und die Blätter mit " +
         "eigenem Prüflauf haben ihren Knopf noch. Was ihre Prüfläufe <i>rechnen</i>, kann diese " +
         "Seite nicht nachvollziehen; dafür muss man das Blatt öffnen und drücken."
       : "<b class='schlecht'>" + fehler + " von " + geprueft + " Blättern beanstandet.</b> " +
@@ -542,6 +564,7 @@
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", neuZeichnen);
 
   aufbauen();
+  $("zaehler").textContent = `${ALLE.length} Blätter · ${FELDER.length} Felder · je ein Repo, je ein Prüflauf`;
 })();
 </script>
 </body>

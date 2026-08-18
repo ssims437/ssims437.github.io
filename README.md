@@ -1,6 +1,6 @@
 # ssims437.github.io
 
-Die Sammelseite über fünfzehn eigenständige Blätter — je eine einzelne HTML-Datei ohne Build und
+Die Sammelseite über alle eigenständigen Blätter — je eine einzelne HTML-Datei ohne Build und
 ohne Bibliothek, jede mit eingebautem Prüflauf.
 
 → **[Seite öffnen](https://ssims437.github.io/)**
@@ -13,7 +13,7 @@ Nachprüfbares tut statt etwas zu behaupten.
 
 Alle Blätter liegen auf derselben Herkunft wie diese Seite (`ssims437.github.io`), deshalb darf sie
 sie holen und nachlesen. Geprüft wird nur, was ohne Ausführen fremden Codes entscheidbar ist —
-für jedes der fünfzehn Blätter:
+für jedes Blatt:
 
 | Prüfung | Warum |
 |---|---|
@@ -47,8 +47,8 @@ Sammlung im Blatt selbst" nicht.
 
 ## Was mich das gekostet hat
 
-**Die Gruppierung war die eigentliche Arbeit.** Eine alphabetische Liste von fünfzehn Namen ist
-ein Menü, kein Überblick. Die Blätter in fünf Felder zu schneiden (Rechnen & Zahlen, Daten &
+**Die Gruppierung war die eigentliche Arbeit.** Eine alphabetische Liste von damals fünfzehn Namen war
+ein Menü, kein Überblick. Die Blätter in Felder zu schneiden (Rechnen & Zahlen, Sprache & Maschine, Daten &
 Speicher, Signale & Zufall, Wege & Entscheidungen, Welt messen) hat länger gedauert als die Seite
 zu bauen — und zwei Stücke sitzen bis heute nicht sauber: **Würfel** ist ein Prüfstand für
 Zufallsgeneratoren und stünde genauso gut bei „Rechnen", und **Wegewahl** ist so viel
@@ -78,7 +78,7 @@ noch nicht gepushte Änderung stillschweigend übersehen.
 
 ## Technik
 
-Eine einzelne HTML-Datei. Kein Build, keine Bibliothek. Canvas 2D für die fünfzehn Signete
+Eine einzelne HTML-Datei. Kein Build, keine Bibliothek. Canvas 2D für die Signete
 (gezeichnet, nicht als Bild eingebunden), `fetch` für den Prüflauf, hell und dunkel über
 `prefers-color-scheme` und einen Schalter.
 
