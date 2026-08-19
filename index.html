@@ -32,6 +32,8 @@
     --g15: #7A6A2E; /* Falten & Papier */
     --g16: #2E6B7A; /* Verkehr & Fluss */
     --g17: #4A3A7A; /* Rätsel & Deduktion */
+    --g18: #2E7A6B; /* Ordnen & Vergleichen */
+    --g19: #8C3A2E; /* Schwelle & Übergang */
     --gut:  #4A7A3C;
     --warn: #A32C22;
     --schatten: 0 1px 0 rgba(27,26,22,.05), 0 10px 24px -16px rgba(27,26,22,.5);
@@ -351,6 +353,14 @@
     { name: "Rätsel & Deduktion", farbe: "--g17", text: "Aufgaben, bei denen Raten kein Teil der Lösung ist", blaetter: [
       { id: "minen", titel: "Minen", was: "Minenräumer zum Spielen — mit Brettern, bei denen jeder Zug erzwungen ist, und einem Löser, der zeigt warum.",
         beweis: "der Löser gegen jede passende Minenlage: 0 falsche Behauptungen, 0 übersehene Felder", knopf: true, signet: "raster" }
+    ]},
+    { name: "Ordnen & Vergleichen", farbe: "--g18", text: "sortieren, ohne unterwegs zu entscheiden", blaetter: [
+      { id: "sortiernetz", titel: "Sortiernetz", was: "Eine fest verdrahtete Folge von Vergleichen, die jede Eingabe ordnet — mit Suche und Selberbauen.",
+        beweis: "das 0-1-Prinzip gegen alle Anordnungen geprüft · 0 Uneinigkeiten", knopf: true, signet: "leitern" }
+    ]},
+    { name: "Schwelle & Übergang", farbe: "--g19", text: "wann aus vielen Teilen ein Ganzes wird", blaetter: [
+      { id: "schwelle", titel: "Schwelle", was: "Perkolation: ab welchem Anteil ein zufälliges Gitter durchlässig wird — und wie scharf die Grenze ist.",
+        beweis: "die Schwelle 0,5927 selbst gemessen · aus der Schärfe fällt der Exponent 4/3", knopf: true, signet: "sprung" }
     ]}
   ];
 
@@ -525,6 +535,40 @@
       g.setLineDash([2, 3]);
       g.beginPath(); g.moveTo(s * .88, s * .12); g.lineTo(s * .88, s * .9); g.stroke();
       g.setLineDash([]); g.globalAlpha = 1;
+    },
+    leitern: (g, s, f) => {
+      // ein Sortiernetz im Kleinen: vier Drähte, ein paar Vergleicher
+      g.strokeStyle = f; g.lineWidth = 1.4; g.globalAlpha = .55;
+      for (let i = 0; i < 4; i++) {
+        const y = s * (.26 + i * .16);
+        g.beginPath(); g.moveTo(s * .1, y); g.lineTo(s * .9, y); g.stroke();
+      }
+      g.globalAlpha = 1; g.lineWidth = 2;
+      const striche = [[.26, 0, 1], [.44, 2, 3], [.62, 0, 2], [.78, 1, 3]];
+      for (const [x, a, b] of striche) {
+        const y1 = s * (.26 + a * .16), y2 = s * (.26 + b * .16);
+        g.beginPath(); g.moveTo(s * x, y1); g.lineTo(s * x, y2); g.stroke();
+        g.fillStyle = f;
+        g.beginPath(); g.arc(s * x, y1, s * .032, 0, 7); g.fill();
+        g.beginPath(); g.arc(s * x, y2, s * .032, 0, 7); g.fill();
+      }
+    },
+    sprung: (g, s, f) => {
+      // eine Kurve, die an einer Stelle senkrecht hochgeht
+      g.strokeStyle = f; g.lineWidth = 2.2;
+      g.beginPath();
+      for (let i = 0; i <= 60; i++) {
+        const t = i / 60;
+        const y = 1 / (1 + Math.exp(-(t - 0.5) * 26));
+        const px = s * (.12 + t * .76), py = s * (.84 - y * .6);
+        i ? g.lineTo(px, py) : g.moveTo(px, py);
+      }
+      g.stroke();
+      g.globalAlpha = .4; g.lineWidth = 1; g.setLineDash([3, 3]);
+      g.beginPath(); g.moveTo(s * .5, s * .16); g.lineTo(s * .5, s * .88); g.stroke();
+      g.setLineDash([]); g.globalAlpha = 1;
+      g.fillStyle = f;
+      g.beginPath(); g.arc(s * .5, s * .54, s * .05, 0, 7); g.fill();
     },
     raster: (g, s, f) => {
       // ein Ausschnitt aus dem Minenfeld: offene Zahlen, eine Flagge

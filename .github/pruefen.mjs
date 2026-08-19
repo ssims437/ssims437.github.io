@@ -26,7 +26,7 @@ const ERWARTET = ["plotterblaetter", "redundanz", "reparatur", "wuerfel", "reche
   "nachkomma", "zeitsprung", "gradtage", "stimmfuehrung", "verzerrung",
   "handschlag", "wegewahl", "frequenzgang", "indexbaum", "auszaehlung", "uebersetzer", "ornament", "augenmass", "vorhersage", "tragwerk", "blocksatz",
   "abgleich", "spielbaum", "mischung", "turnier", "tilgung", "regenbogen",
-  "faltung", "stau", "minen"];
+  "faltung", "stau", "minen", "sortiernetz", "schwelle"];
 
 const beanstandungen = [];
 const meldung = (t) => { beanstandungen.push(t); console.log(`  ✗ ${t}`); };
