@@ -31,6 +31,7 @@
     --g14: #2A6BB4; /* Licht & Optik */
     --g15: #7A6A2E; /* Falten & Papier */
     --g16: #2E6B7A; /* Verkehr & Fluss */
+    --g17: #4A3A7A; /* Rätsel & Deduktion */
     --gut:  #4A7A3C;
     --warn: #A32C22;
     --schatten: 0 1px 0 rgba(27,26,22,.05), 0 10px 24px -16px rgba(27,26,22,.5);
@@ -346,6 +347,10 @@
     { name: "Verkehr & Fluss", farbe: "--g16", text: "wenn viele dasselbe wollen und nur einer vorne ist", blaetter: [
       { id: "stau", titel: "Stau", was: "Warum es steht, obwohl nichts passiert ist: Phantomstaus aus vier Regeln, im Weg-Zeit-Bild sichtbar.",
         beweis: "die Stauwelle wandert mit gemessenen −15 km/h rückwärts — wie auf echten Autobahnen", knopf: true, signet: "welle" }
+    ]},
+    { name: "Rätsel & Deduktion", farbe: "--g17", text: "Aufgaben, bei denen Raten kein Teil der Lösung ist", blaetter: [
+      { id: "minen", titel: "Minen", was: "Minenräumer zum Spielen — mit Brettern, bei denen jeder Zug erzwungen ist, und einem Löser, der zeigt warum.",
+        beweis: "der Löser gegen jede passende Minenlage: 0 falsche Behauptungen, 0 übersehene Felder", knopf: true, signet: "raster" }
     ]}
   ];
 
@@ -520,6 +525,27 @@
       g.setLineDash([2, 3]);
       g.beginPath(); g.moveTo(s * .88, s * .12); g.lineTo(s * .88, s * .9); g.stroke();
       g.setLineDash([]); g.globalAlpha = 1;
+    },
+    raster: (g, s, f) => {
+      // ein Ausschnitt aus dem Minenfeld: offene Zahlen, eine Flagge
+      const z = s * .22;
+      for (let j = 0; j < 3; j++) for (let i = 0; i < 3; i++) {
+        const x = s * .17 + i * z, y = s * .17 + j * z;
+        const offen = j > 0 || i > 0;
+        g.fillStyle = f; g.globalAlpha = offen ? .10 : .30;
+        g.fillRect(x, y, z - 1.5, z - 1.5);
+        g.globalAlpha = 1;
+      }
+      g.fillStyle = f; g.font = `bold ${Math.round(s * .15)}px ui-monospace, monospace`;
+      g.textAlign = "center"; g.textBaseline = "middle";
+      [[1, 0, "1"], [2, 0, "2"], [1, 1, "1"], [2, 2, "1"]].forEach(([i, j, t]) =>
+        g.fillText(t, s * .17 + i * z + z / 2, s * .17 + j * z + z / 2));
+      // die Flagge auf dem verdeckten Feld
+      g.beginPath();
+      g.moveTo(s * .24, s * .22); g.lineTo(s * .34, s * .26); g.lineTo(s * .24, s * .30);
+      g.closePath(); g.fill();
+      g.strokeStyle = f; g.lineWidth = 1.2;
+      g.beginPath(); g.moveTo(s * .24, s * .21); g.lineTo(s * .24, s * .36); g.stroke();
     },
     knick: (g, s, f) => {
       // ein Faltenstern: vier Strahlen, zwei davon gestrichelt
