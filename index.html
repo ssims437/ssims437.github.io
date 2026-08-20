@@ -34,6 +34,7 @@
     --g17: #4A3A7A; /* Rätsel & Deduktion */
     --g18: #2E7A6B; /* Ordnen & Vergleichen */
     --g19: #8C3A2E; /* Schwelle & Übergang */
+    --g20: #1F6B8C; /* Strömung & Wirbel */
     --gut:  #4A7A3C;
     --warn: #A32C22;
     --schatten: 0 1px 0 rgba(27,26,22,.05), 0 10px 24px -16px rgba(27,26,22,.5);
@@ -361,6 +362,10 @@
     { name: "Schwelle & Übergang", farbe: "--g19", text: "wann aus vielen Teilen ein Ganzes wird", blaetter: [
       { id: "schwelle", titel: "Schwelle", was: "Perkolation: ab welchem Anteil ein zufälliges Gitter durchlässig wird — und wie scharf die Grenze ist.",
         beweis: "die Schwelle 0,5927 selbst gemessen · aus der Schärfe fällt der Exponent 4/3", knopf: true, signet: "sprung" }
+    ]},
+    { name: "Strömung & Wirbel", farbe: "--g20", text: "was passiert, wenn nichts zusammengedrückt werden darf", blaetter: [
+      { id: "stroemung", titel: "Strömung", was: "Eine Flüssigkeit in Echtzeit: Tinte mit der Maus rühren, Wirbelstraße hinter dem Zylinder, Zerfall gegen die Formel.",
+        beweis: "Zerfallsrate auf 1 % gegen exp(−2νk²t) · Strouhal-Zahl gemessen gegen 0,20", knopf: true, signet: "strudel" }
     ]}
   ];
 
@@ -535,6 +540,27 @@
       g.setLineDash([2, 3]);
       g.beginPath(); g.moveTo(s * .88, s * .12); g.lineTo(s * .88, s * .9); g.stroke();
       g.setLineDash([]); g.globalAlpha = 1;
+    },
+    strudel: (g, s, f) => {
+      // zwei gegenläufige Wirbel, wie hinter einem Hindernis
+      g.lineWidth = 1.6;
+      for (const [mx, my, dreh] of [[.34, .38, 1], [.66, .64, -1]]) {
+        g.strokeStyle = f;
+        g.globalAlpha = .9;
+        g.beginPath();
+        for (let i = 0; i <= 90; i++) {
+          const t = i / 90;
+          const w = dreh * t * 5.6, r = s * .015 + t * s * .21;
+          const x = s * mx + Math.cos(w) * r, y = s * my + Math.sin(w) * r;
+          i ? g.lineTo(x, y) : g.moveTo(x, y);
+        }
+        g.stroke();
+      }
+      g.globalAlpha = .4; g.lineWidth = 1.2;
+      for (const y of [.16, .86]) {
+        g.beginPath(); g.moveTo(s * .08, s * y); g.lineTo(s * .92, s * y); g.stroke();
+      }
+      g.globalAlpha = 1;
     },
     leitern: (g, s, f) => {
       // ein Sortiernetz im Kleinen: vier Drähte, ein paar Vergleicher
