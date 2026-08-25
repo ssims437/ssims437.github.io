@@ -76,6 +76,25 @@ Seite lokal unter `python -m http.server` dieselben Dateien, die sie später auf
 prüft. Mit absoluten Adressen hätte der lokale Lauf die veröffentlichte Fassung geprüft und jede
 noch nicht gepushte Änderung stillschweigend übersehen.
 
+## Werkzeug: eingreifen und nachmessen
+
+Die Blätter sind absichtlich einzelne Dateien ohne Build — der Preis dafür ist, dass eine Änderung
+an der gemeinsamen Handschrift vierzigmal gemacht werden müsste. Zwei Skripte im Ordner
+`werkzeug/` nehmen diese Arbeit ab, und sie gehören zusammen:
+
+| | was es tut |
+|---|---|
+| `node werkzeug/pflege.mjs` | greift ein: Vorspann linksbündig, breite Inhalte scrollen im Kasten statt in der Seite, Klickflächen auf 34 px, Fokusrahmen, Kontrast der leisen Schrift auf mindestens 5:1 gerechnet, Staffelung für breite Schirme, Rasterung für feine Schirme. Ohne Argument zeigt es nur, was es täte; `--schreiben` schreibt. Jeder Eingriff trägt ein Merkzeichen und wird beim zweiten Lauf nicht wiederholt. |
+| `node werkzeug/pruefblick.mjs` | misst nach, im echten Browser, an denselben Dateien: Ausrichtung des Vorspanns auf das Pixel gegen die Überschrift, Querlauf auf 380 px Breite, Kontrast hell **und** dunkel, Höhe von Knöpfen und Reglern, undefinierte Farbvariablen, und ob der Ansichtsschalter wirklich umschaltet — samt der Frage, ob die gezeichneten Bilder dabei mitziehen. |
+
+Der zweite ist der wichtigere. Ein Eingriff, der nur behauptet wird, ist keiner: Beim Durchgang am
+25.08.2026 kam über `pruefblick.mjs` heraus, dass vier Blätter auf dem Handy seitwärts liefen
+(frequenzgang +117 px, auszaehlung +94, verzerrung +67, zeitsprung +15), dass die leise Schrift in
+vier Blättern unter 4,5:1 lag (redundanz 4,25 · reparatur 4,26 · plotterblaetter 4,30 · wuerfel
+4,47), dass **rechenwerk** sich beim Laden selbst 86 Pixel weit wegscrollte, und dass ein frisch
+eingebauter Ansichtsschalter in **gradtage** wirkungslos war, weil er in einem Skript gelandet
+war, das auf gewöhnlichen Schirmen vorher aussteigt.
+
 ## Technik
 
 Eine einzelne HTML-Datei. Kein Build, keine Bibliothek. Canvas 2D für die Signete
