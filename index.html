@@ -36,6 +36,7 @@
     --g19: #8C3A2E; /* Schwelle & Übergang */
     --g20: #1F6B8C; /* Strömung & Wirbel */
     --g21: #6B4A8C; /* Nachbarschaft & Raum */
+    --g22: #A8471F; /* Geschick & Reflex */
     --gut:  #4A7A3C;
     --warn: #A32C22;
     --schatten: 0 1px 0 rgba(27,26,22,.05), 0 10px 24px -16px rgba(27,26,22,.5);
@@ -400,6 +401,10 @@
       { id: "schwelle", titel: "Schwelle", was: "Perkolation: ab welchem Anteil ein zufälliges Gitter durchlässig wird — und wie scharf die Grenze ist.",
         beweis: "die Schwelle 0,5927 selbst gemessen · aus der Schärfe fällt der Exponent 4/3", knopf: true, signet: "sprung" }
     ]},
+    { name: "Geschick & Reflex", farbe: "--g22", text: "wenn die Hand mitdenken muss", blaetter: [
+      { id: "ansturm", titel: "Ansturm", was: "Ein Arena-Spiel in Echtzeit: ausweichen, schießen, aufsteigen — und ein Lauf, der sich Tick für Tick wiederholen lässt.",
+        beweis: "derselbe Lauf bei 30 wie bei 240 Bildern je Sekunde · gleicher Zustandsabdruck", knopf: true, signet: "ansturm" }
+    ]},
     { name: "Nachbarschaft & Raum", farbe: "--g21", text: "wer wem am nächsten ist — und was das über die Fläche verrät", blaetter: [
       { id: "nachbarschaft", titel: "Nachbarschaft", was: "Voronoi-Zellen und das Netz dahinter, gebaut auf ganzen Koordinaten — mit der Stelle, an der Fließkomma allein ein falsches Netz baut.",
         beweis: "240 114 Dreieck-Punkt-Paare erschöpfend geprüft · alle 161 möglichen Netze kleiner Mengen aufgezählt", knopf: true, signet: "zellen" }
@@ -645,6 +650,24 @@
       g.setLineDash([]); g.globalAlpha = 1;
       g.fillStyle = f;
       g.beginPath(); g.arc(s * .5, s * .54, s * .05, 0, 7); g.fill();
+    },
+    ansturm: (g, s, f) => {
+      // einer in der Mitte, und alles hält darauf zu
+      const cx = s * .5, cy = s * .5;
+      g.strokeStyle = f; g.lineWidth = 1.2; g.globalAlpha = .5;
+      for (let i = 0; i < 6; i++) {
+        const w = i * Math.PI / 3 + .3;
+        g.beginPath();
+        g.moveTo(cx + Math.cos(w) * s * .42, cy + Math.sin(w) * s * .42);
+        g.lineTo(cx + Math.cos(w) * s * .22, cy + Math.sin(w) * s * .22);
+        g.stroke();
+      }
+      g.globalAlpha = 1; g.fillStyle = f;
+      for (let i = 0; i < 6; i++) {
+        const w = i * Math.PI / 3 + .3, r = s * (.4 - (i % 2) * .06);
+        g.beginPath(); g.arc(cx + Math.cos(w) * r, cy + Math.sin(w) * r, s * .05, 0, 7); g.fill();
+      }
+      g.beginPath(); g.arc(cx, cy, s * .09, 0, 7); g.fill();
     },
     zellen: (g, s, f) => {
       // ein Kern, seine Nachbarn, und die Zelle, die dazwischen entsteht
