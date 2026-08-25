@@ -35,6 +35,7 @@
     --g18: #2E7A6B; /* Ordnen & Vergleichen */
     --g19: #8C3A2E; /* Schwelle & Übergang */
     --g20: #1F6B8C; /* Strömung & Wirbel */
+    --g21: #6B4A8C; /* Nachbarschaft & Raum */
     --gut:  #4A7A3C;
     --warn: #A32C22;
     --schatten: 0 1px 0 rgba(27,26,22,.05), 0 10px 24px -16px rgba(27,26,22,.5);
@@ -73,7 +74,7 @@
   h1 { font-family:var(--f-fest); font-weight:700; font-size:clamp(24px,4.2vw,40px);
     line-height:1.06; letter-spacing:-.03em; margin:0; text-wrap:balance; }
   h1 span { color:var(--g1); }
-  .vorspann { max-width:72ch; color:var(--leise); margin:0 auto; text-align:center; }
+  .vorspann { max-width:72ch; color:var(--leise); margin:0; }
   .vorspann b { color:var(--tinte); font-weight:600; }
 
   h2 { font-family:var(--f-fest); font-size:11px; letter-spacing:.18em; text-transform:uppercase;
@@ -253,6 +254,32 @@
 })();
 </script>
 <script>
+/* PFLEGE: schaerfe */
+(function () {
+  "use strict";
+  const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+  if (dpr <= 1.01) return;
+  const wb = Object.getOwnPropertyDescriptor(HTMLCanvasElement.prototype, "width");
+  const hb = Object.getOwnPropertyDescriptor(HTMLCanvasElement.prototype, "height");
+  const roh = HTMLCanvasElement.prototype.getContext;
+  HTMLCanvasElement.prototype.getContext = function (art, ...rest) {
+    const g = roh.call(this, art, ...rest);
+    if (art !== "2d" || this.__scharf) return g;
+    this.__scharf = true;
+    let lw = wb.get.call(this), lh = hb.get.call(this);
+    const anlegen = () => {
+      wb.set.call(this, Math.round(lw * dpr));
+      hb.set.call(this, Math.round(lh * dpr));
+      roh.call(this, "2d").setTransform(dpr, 0, 0, dpr, 0, 0);   // Größe setzen löscht den Zustand
+    };
+    Object.defineProperty(this, "width",  { get: () => lw, set: (v) => { lw = v; anlegen(); }, configurable: true });
+    Object.defineProperty(this, "height", { get: () => lh, set: (v) => { lh = v; anlegen(); }, configurable: true });
+    anlegen();
+    return g;
+  };
+})();
+</script>
+<script>
 (function () {
   "use strict";
   const $ = (id) => document.getElementById(id);
@@ -362,6 +389,10 @@
     { name: "Schwelle & Übergang", farbe: "--g19", text: "wann aus vielen Teilen ein Ganzes wird", blaetter: [
       { id: "schwelle", titel: "Schwelle", was: "Perkolation: ab welchem Anteil ein zufälliges Gitter durchlässig wird — und wie scharf die Grenze ist.",
         beweis: "die Schwelle 0,5927 selbst gemessen · aus der Schärfe fällt der Exponent 4/3", knopf: true, signet: "sprung" }
+    ]},
+    { name: "Nachbarschaft & Raum", farbe: "--g21", text: "wer wem am nächsten ist — und was das über die Fläche verrät", blaetter: [
+      { id: "nachbarschaft", titel: "Nachbarschaft", was: "Voronoi-Zellen und das Netz dahinter, gebaut auf ganzen Koordinaten — mit der Stelle, an der Fließkomma allein ein falsches Netz baut.",
+        beweis: "240 114 Dreieck-Punkt-Paare erschöpfend geprüft · alle 161 möglichen Netze kleiner Mengen aufgezählt", knopf: true, signet: "zellen" }
     ]},
     { name: "Strömung & Wirbel", farbe: "--g20", text: "was passiert, wenn nichts zusammengedrückt werden darf", blaetter: [
       { id: "stroemung", titel: "Strömung", was: "Eine Flüssigkeit in Echtzeit: Tinte mit der Maus rühren, Wirbelstraße hinter dem Zylinder, Zerfall gegen die Formel.",
@@ -595,6 +626,28 @@
       g.setLineDash([]); g.globalAlpha = 1;
       g.fillStyle = f;
       g.beginPath(); g.arc(s * .5, s * .54, s * .05, 0, 7); g.fill();
+    },
+    zellen: (g, s, f) => {
+      // ein Kern, seine Nachbarn, und die Zelle, die dazwischen entsteht
+      const cx = s * .5, cy = s * .5, r = s * .3;
+      const ecke = (i) => [cx + r * .577 * Math.cos(Math.PI / 6 + i * Math.PI / 3),
+                           cy + r * .577 * Math.sin(Math.PI / 6 + i * Math.PI / 3)];
+      g.strokeStyle = f; g.lineWidth = 1.2; g.globalAlpha = .55;
+      g.beginPath();
+      for (let i = 0; i < 6; i++) { const [x, y] = ecke(i); i ? g.lineTo(x, y) : g.moveTo(x, y); }
+      g.closePath(); g.stroke();
+      g.globalAlpha = .28;
+      for (let i = 0; i < 6; i++) {
+        const w = i * Math.PI / 3;
+        g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + r * Math.cos(w), cy + r * Math.sin(w)); g.stroke();
+      }
+      g.globalAlpha = 1; g.fillStyle = f;
+      const punkt = (x, y, rr) => { g.beginPath(); g.arc(x, y, rr, 0, Math.PI * 2); g.fill(); };
+      punkt(cx, cy, s * .05);
+      for (let i = 0; i < 6; i++) {
+        const w = i * Math.PI / 3;
+        punkt(cx + r * Math.cos(w), cy + r * Math.sin(w), s * .032);
+      }
     },
     raster: (g, s, f) => {
       // ein Ausschnitt aus dem Minenfeld: offene Zahlen, eine Flagge

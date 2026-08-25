@@ -48,14 +48,19 @@ function regelBlock(text, selektor) {
   return { anfang, auf, zu, inhalt: text.slice(auf + 1, zu) };
 }
 
-function vorspannZentrieren(text) {
+/* Der Vorspann stand eine Zeit lang zentriert. Das liest sich bei einer Zeile
+   gut und bei sechs schlecht: das linke Ende springt, das Auge sucht bei jeder
+   Zeile neu den Anfang. Seit 25.08.2026 steht er linksbündig — bündig mit der
+   Überschrift und mit allem darunter. */
+function vorspannLinks(text) {
   for (const name of VORSPANN) {
     const b = regelBlock(text, name);
     if (!b) continue;
-    if (/text-align:\s*center/.test(b.inhalt)) return { text, geaendert: false, name };
     let neu = b.inhalt;
-    if (/margin:\s*0(?![^;]*auto)/.test(neu)) neu = neu.replace(/margin:\s*0\s*;/, "margin:0 auto; text-align:center;");
-    else neu = neu.replace(/\s*$/, " margin:0 auto; text-align:center;");
+    neu = neu.replace(/\s*text-align:\s*center\s*;?/g, "");
+    neu = neu.replace(/margin:\s*0\s+auto\s*;/g, "margin:0;");
+    neu = neu.replace(/margin:\s*0\s+auto\b/g, "margin:0");
+    if (neu === b.inhalt) return { text, geaendert: false, name };
     return { text: text.slice(0, b.auf + 1) + neu + text.slice(b.zu), geaendert: true, name };
   }
   return { text, geaendert: false, name: null };
@@ -174,9 +179,9 @@ for (const name of blaetter) {
   let text = roh;
   const notizen = [];
 
-  const v = vorspannZentrieren(text);
+  const v = vorspannLinks(text);
   text = v.text;
-  if (v.geaendert) notizen.push(`Vorspann zentriert (.${v.name})`);
+  if (v.geaendert) notizen.push(`Vorspann linksbündig (.${v.name})`);
   else if (!v.name) notizen.push("kein Vorspann gefunden");
 
   const kasten = kastenFinden(text);
