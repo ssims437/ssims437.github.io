@@ -68,6 +68,11 @@ function vorspannLinks(text) {
     neu = neu.replace(/\s*text-align:\s*center\s*;?/g, "");
     neu = neu.replace(/margin:\s*0\s+auto\s*;/g, "margin:0;");
     neu = neu.replace(/margin:\s*0\s+auto\b/g, "margin:0");
+    /* Seit 25.08.2026 keine eigene Breitenbremse mehr: linksbündig **und** auf
+       70 Zeichen gedeckelt hieß, dass der Vorspann die halbe Seite leer stehen
+       ließ, während Leiste und Kästen darunter über die volle Breite laufen.
+       Jetzt reicht er so weit wie alles andere auf der Seite. */
+    neu = neu.replace(/\s*max-width:\s*[^;]+;?/g, "");
     if (neu === b.inhalt) return { text, geaendert: false, name };
     return { text: text.slice(0, b.auf + 1) + neu + text.slice(b.zu), geaendert: true, name };
   }

@@ -80,9 +80,15 @@ const MESSUNG = `(() => {
 
   const vorspann = document.querySelector(".vorspann, .lead, .anriss, .standfirst");
   const h1 = document.querySelector("h1");
+  /* Der Vorspann soll so weit reichen wie der Rest der Seite. Gemessen wird
+     gegen die Überschrift daneben: die ist ein Blockelement im selben Kasten
+     und damit genau so breit wie der Inhaltsbereich — anders als der Kasten
+     selbst, dessen Rahmenmass die Polsterung mitzählt. */
+  const kasten = h1 ? h1.getBoundingClientRect() : null;
   const ausrichtung = vorspann && h1 ? {
     aus: getComputedStyle(vorspann).textAlign,
     versatz: Math.round(vorspann.getBoundingClientRect().left - h1.getBoundingClientRect().left),
+    fehlbreite: Math.round(kasten.width - vorspann.getBoundingClientRect().width),
   } : null;
 
   const sichtbar = (e) => e.offsetParent !== null && e.getBoundingClientRect().height > 0;
@@ -121,9 +127,11 @@ for (const seite of seiten) {
 
   if (!hell.ausrichtung) klage(seite, "kein Vorspann oder keine Überschrift gefunden");
   else {
-    const { aus, versatz } = hell.ausrichtung;
+    const { aus, versatz, fehlbreite } = hell.ausrichtung;
     if (!["start", "left"].includes(aus) || Math.abs(versatz) > 1)
       klage(seite, `Vorspann nicht linksbündig (${aus}, ${versatz} px versetzt)`);
+    if (fehlbreite > 2)
+      klage(seite, `Vorspann ${fehlbreite} px schmäler als die Seite — Breitenbremse noch drin`);
   }
   for (const k of hell.kontraste) if (k.wert < 4.5) klage(seite, `Kontrast hell ${k.wert}:1 bei ${k.sel}`);
   if (hell.knopf !== null && hell.knopf < 32) klage(seite, `Knopf nur ${hell.knopf} px hoch`);
@@ -157,6 +165,7 @@ for (const seite of seiten) {
 
   const kleinster = Math.min(...hell.kontraste.map((k) => k.wert), ...schmal.kontraste.map((k) => k.wert));
   console.log(`Querlauf ${String(schmal.ueberlauf).padStart(3)} px · ` +
+    `Vorspann ${String(hell.ausrichtung ? hell.ausrichtung.fehlbreite : "?").padStart(3)} px schmäler · ` +
     `Kontrast ab ${kleinster.toFixed(2)}:1 · Knopf ${String(hell.knopf ?? "—").padStart(3)} px · Bilder ${bilder}`);
 }
 await browser.close();

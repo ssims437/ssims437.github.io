@@ -74,7 +74,7 @@
   h1 { font-family:var(--f-fest); font-weight:700; font-size:clamp(24px,4.2vw,40px);
     line-height:1.06; letter-spacing:-.03em; margin:0; text-wrap:balance; }
   h1 span { color:var(--g1); }
-  .vorspann { max-width:72ch; color:var(--leise); margin:0; }
+  .vorspann { color:var(--leise); margin:0; }
   .vorspann b { color:var(--tinte); font-weight:600; }
 
   h2 { font-family:var(--f-fest); font-size:11px; letter-spacing:.18em; text-transform:uppercase;
@@ -409,6 +409,15 @@
         beweis: "Zerfallsrate auf 1 % gegen exp(−2νk²t) · Strouhal-Zahl gemessen gegen 0,20", knopf: true, signet: "strudel" }
     ]}
   ];
+
+  /* Ordnung ohne Pflegeaufwand: Felder alphabetisch, und innerhalb jedes Feldes
+     die Blätter ebenso. Sortiert wird hier und nicht in der Liste oben — dann
+     landet ein neuer Eintrag auch dann am richtigen Platz, wenn er unten
+     angehängt wird. Verglichen wird nach deutscher Sortierung, damit Ä neben A
+     steht und nicht hinter Z. */
+  const wieDeutsch = new Intl.Collator("de-AT", { sensitivity: "base" });
+  FELDER.sort((a, b) => wieDeutsch.compare(a.name, b.name));
+  for (const f of FELDER) if (f.blaetter) f.blaetter.sort((a, b) => wieDeutsch.compare(a.titel, b.titel));
 
   const ALLE = FELDER.filter((f) => !f.offen)
     .flatMap((f) => f.blaetter.map((b) => ({ ...b, farbe: f.farbe })));
