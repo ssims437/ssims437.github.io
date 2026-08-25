@@ -34,6 +34,14 @@ const KEINE_SCHAERFE = /putImageData|getImageData|resetTransform|setTransform\s*
 
 const MERK_BREIT = "/* PFLEGE: breite-schirme */";
 const MERK_SCHAERFE = "/* PFLEGE: schaerfe */";
+const MERK_SCHMAL = "/* PFLEGE: schmalschirm */";
+const MERK_KLICK = "/* PFLEGE: klickflaechen */";
+const MERK_FOKUS = "/* PFLEGE: fokus */";
+
+/* Die Farbnamen der drei ältesten Blätter. */
+const LEISE = ["--leise", "--muted"];
+const GRUND = ["--grund", "--papier", "--paper", "--bg"];
+const FELD = ["--feld", "--card", "--panel"];
 
 /* ------------------------------------------------------------------ Hilfen */
 
@@ -163,18 +171,125 @@ function schaerfeEinsetzen(text) {
   return { text: text.slice(0, letztes) + SCHAERFE_EINSCHUB + text.slice(letztes), geaendert: true };
 }
 
+/* Auf schmalen Schirmen darf die Seite nicht seitwärts laufen. Breite Inhalte
+   — in dieser Sammlung sind es ausnahmslos Tabellen und lange Auswahlfelder —
+   scrollen deshalb in ihrem eigenen Kasten. Gemessen am 25.08.2026: vier
+   Blätter schoben die ganze Seite über den Rand (frequenzgang +117 px,
+   auszaehlung +94, verzerrung +67, zeitsprung +15). */
+function schmalschirm(text) {
+  if (text.includes(MERK_SCHMAL)) return { text, geaendert: false };
+  const block = `\n  ${MERK_SCHMAL}\n` +
+    "  @media (max-width: 700px) {\n" +
+    "    table { display: block; max-width: 100%; overflow-x: auto; }\n" +
+    "    select, input[type=text], input[type=number], input[type=search] { max-width: 100%; }\n" +
+    "  }\n";
+  const ende = text.lastIndexOf("</style>");
+  if (ende < 0) return { text, geaendert: false };
+  return { text: text.slice(0, ende) + block + text.slice(ende), geaendert: true };
+}
+
+/* Knöpfe waren 28 px hoch, Regler 16 px — am Schreibtisch bequem, am Daumen
+   nicht. 34 px kosten optisch fast nichts und treffen sich deutlich besser. */
+function klickflaechen(text) {
+  if (text.includes(MERK_KLICK)) return { text, geaendert: false };
+  const block = `\n  ${MERK_KLICK}\n` +
+    "  button, select { min-height: 34px; }\n" +
+    "  input[type=range] { height: 26px; }\n";
+  const ende = text.lastIndexOf("</style>");
+  if (ende < 0) return { text, geaendert: false };
+  return { text: text.slice(0, ende) + block + text.slice(ende), geaendert: true };
+}
+
+/* Wer mit der Tastatur bedient, muss sehen, wo er ist. */
+function fokusRegel(text) {
+  if (/:focus-visible/.test(text)) return { text, geaendert: false };
+  const block = `\n  ${MERK_FOKUS}\n` +
+    "  :focus-visible { outline: 2px solid var(--merk, currentColor); outline-offset: 2px; }\n";
+  const ende = text.lastIndexOf("</style>");
+  if (ende < 0) return { text, geaendert: false };
+  return { text: text.slice(0, ende) + block + text.slice(ende), geaendert: true };
+}
+
+/* ---- Kontrast der leisen Schrift -------------------------------------------
+   Die leise Schrift trägt Vorspann, Hinweise und Beschriftungen — also den
+   halben Text. Gemessen lag sie in den vier ältesten Blättern unter 4,5:1
+   (redundanz 4,25 · reparatur 4,26 · plotterblaetter 4,30 · wuerfel 4,47),
+   während die neueren bei 4,9 bis 5,3 liegen. Hier wird nicht geschätzt,
+   sondern gerechnet: die Farbe wird schrittweise abgedunkelt, bis sie gegen
+   den dunkleren der beiden Gründe 5,0:1 erreicht. */
+function hexNachRgb(h) {
+  const m = h.trim().match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+  if (!m) return null;
+  const t = m[1].length === 3 ? m[1].split("").map((c) => c + c).join("") : m[1];
+  return [0, 2, 4].map((i) => parseInt(t.slice(i, i + 2), 16));
+}
+const rgbNachHex = (c) => "#" + c.map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0").toUpperCase()).join("");
+const kanal = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+const leuchtdichte = (c) => 0.2126 * kanal(c[0]) + 0.7152 * kanal(c[1]) + 0.0722 * kanal(c[2]);
+function kontrast(a, b) {
+  const la = leuchtdichte(a), lb = leuchtdichte(b);
+  const hoch = Math.max(la, lb), tief = Math.min(la, lb);
+  return (hoch + 0.05) / (tief + 0.05);
+}
+
+/* Der erste :root-Block ist der helle; die dunklen stehen in Medienabfragen
+   oder unter [data-theme]. Nur der helle wird angefasst. */
+function hellerBlock(text) {
+  const anfang = text.indexOf(":root {");
+  if (anfang < 0) return null;
+  const auf = text.indexOf("{", anfang);
+  const zu = text.indexOf("}", auf);
+  if (zu < 0) return null;
+  return { auf, zu, inhalt: text.slice(auf + 1, zu) };
+}
+
+function wert(inhalt, namen) {
+  for (const n of namen) {
+    const m = inhalt.match(new RegExp(n + "\\s*:\\s*(#[0-9a-fA-F]{3,6})"));
+    if (m) return { name: n, hex: m[1] };
+  }
+  return null;
+}
+
+function kontrastHeben(text, ziel = 5.0) {
+  const b = hellerBlock(text);
+  if (!b) return { text, geaendert: false, grund: "kein :root gefunden" };
+  const leise = wert(b.inhalt, LEISE);
+  const grund = wert(b.inhalt, GRUND);
+  const feld = wert(b.inhalt, FELD);
+  if (!leise || !grund) return { text, geaendert: false, grund: "Farben nicht gefunden" };
+  const gruende = [hexNachRgb(grund.hex), feld ? hexNachRgb(feld.hex) : null].filter(Boolean);
+  const vorne = hexNachRgb(leise.hex);
+  if (!vorne || !gruende.length) return { text, geaendert: false, grund: "Farbe unlesbar" };
+  const schlechtester = () => Math.min(...gruende.map((g) => kontrast(vorne, g)));
+  const vorher = schlechtester();
+  if (vorher >= ziel) return { text, geaendert: false, grund: `schon ${vorher.toFixed(2)}:1` };
+  let farbe = vorne.slice();
+  for (let i = 0; i < 60 && Math.min(...gruende.map((g) => kontrast(farbe, g))) < ziel; i++) {
+    farbe = farbe.map((v) => v * 0.96);
+  }
+  const nachher = Math.min(...gruende.map((g) => kontrast(farbe, g)));
+  const neu = b.inhalt.replace(new RegExp("(" + leise.name + "\\s*:\\s*)" + leise.hex, "i"), "$1" + rgbNachHex(farbe));
+  if (neu === b.inhalt) return { text, geaendert: false, grund: "Ersetzung misslungen" };
+  return { text: text.slice(0, b.auf + 1) + neu + text.slice(b.zu), geaendert: true,
+    grund: `${leise.name} ${leise.hex} → ${rgbNachHex(farbe)} (${vorher.toFixed(2)} → ${nachher.toFixed(2)}:1)` };
+}
+
 /* ------------------------------------------------------------------- Lauf */
 
+/* Auch die Unterblätter: plotterblaetter trägt vier Stück, und sie sind
+   dieselbe Sammlung. Bis 25.08.2026 hat die Pflege sie übersehen. */
 const blaetter = fs.readdirSync(wurzel, { withFileTypes: true })
   .filter((e) => e.isDirectory() && !e.name.startsWith(".") && !e.name.startsWith("_"))
-  .map((e) => e.name)
-  .filter((n) => fs.existsSync(path.join(wurzel, n, "index.html")))
+  .flatMap((e) => fs.readdirSync(path.join(wurzel, e.name))
+    .filter((d) => d.endsWith(".html"))
+    .map((d) => (d === "index.html" ? e.name : `${e.name}/${d}`)))
   .sort();
 
 let berührt = 0;
 const spalten = [];
 for (const name of blaetter) {
-  const datei = path.join(wurzel, name, "index.html");
+  const datei = name.endsWith(".html") ? path.join(wurzel, name) : path.join(wurzel, name, "index.html");
   const roh = fs.readFileSync(datei, "utf8");
   let text = roh;
   const notizen = [];
@@ -195,6 +310,22 @@ for (const name of blaetter) {
   text = s.text;
   if (s.geaendert) notizen.push(s.grund || "Schärfe eingesetzt");
   else if (s.grund && s.grund !== "schon da") notizen.push(`Schärfe übersprungen: ${s.grund}`);
+
+  const sm = schmalschirm(text);
+  text = sm.text;
+  if (sm.geaendert) notizen.push("Schmalschirm: breite Inhalte scrollen im Kasten");
+
+  const kf = klickflaechen(text);
+  text = kf.text;
+  if (kf.geaendert) notizen.push("Klickflächen 34 px");
+
+  const fo = fokusRegel(text);
+  text = fo.text;
+  if (fo.geaendert) notizen.push("Fokusrahmen ergänzt");
+
+  const ko = kontrastHeben(text);
+  text = ko.text;
+  if (ko.geaendert) notizen.push(`Kontrast: ${ko.grund}`);
 
   if (text !== roh) {
     berührt++;
