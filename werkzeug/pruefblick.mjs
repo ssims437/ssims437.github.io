@@ -54,6 +54,20 @@ for (const e of readdirSync(WURZEL, { withFileTypes: true })) {
 }
 seiten.sort();
 
+/* Nichts gemessen ist kein gutes Ergebnis. Ohne diese Sperre meldet ein Aufruf
+   mit falschem Argument — etwa einem Pfad statt eines Ordnernamens — fröhlich
+   "Alle 0 Seiten in Ordnung" und geht mit 0 hinaus. Das ist eine Entwarnung
+   über eine Prüfung, die nie stattgefunden hat. */
+if (!seiten.length) {
+  console.log("ABBRUCH — keine einzige Seite gefunden, es wurde nichts gemessen.");
+  if (nurDiese.length) {
+    console.log("  Erwartet werden Ordnernamen, nicht Pfade: " + nurDiese.join(", "));
+    console.log("  Richtig ist etwa:  node werkzeug/pruefblick.mjs schriftcode");
+  }
+  server.close();
+  process.exit(1);
+}
+
 const beanstandungen = [];
 const klage = (seite, text) => beanstandungen.push(`${seite}: ${text}`);
 
