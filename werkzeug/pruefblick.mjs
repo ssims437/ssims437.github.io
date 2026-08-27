@@ -121,7 +121,10 @@ const MESSUNG = `(() => {
   };
 })()`;
 
-const bild = `[...document.querySelectorAll("canvas")].map((c) => { try { return c.toDataURL().slice(-90); } catch { return "?"; } })`;
+/* Für den Umschaltvergleich erfasst jede Tafel ihr Kurzbild und, ob das
+   Blatt sie mit data-fest als themeneutral erklärt hat — Photopixel etwa
+   dürfen beim Umschalten gleich bleiben, ohne dass das ein Drift wäre. */
+const bild = `[...document.querySelectorAll("canvas")].map((c) => { let url = "?"; try { url = c.toDataURL().slice(-90); } catch { } return { fest: c.dataset.fest === "1", url }; })`;
 
 const browser = await chromium.launch();
 for (const seite of seiten) {
@@ -178,9 +181,13 @@ for (const seite of seiten) {
       await tab.waitForTimeout(erzwungen ? 1500 : 450);
       const nachher = await tab.evaluate(`({ grund: getComputedStyle(document.body).backgroundColor, bilder: ${bild} })`);
       if (vorher.grund === nachher.grund) klage(seite, `Ansichtsschalter ohne Wirkung (${vorher.grund})`);
-      const neu = vorher.bilder.filter((b, i) => b !== nachher.bilder[i]).length;
-      if (vorher.bilder.length && neu === 0) klage(seite, `${vorher.bilder.length} Bild(er) ziehen beim Umschalten nicht mit`);
-      bilder = vorher.bilder.length ? `${neu}/${vorher.bilder.length}` : "—";
+      /* Gezählt wird nur, was mitziehen muss: Tafeln, die das Blatt mit
+         data-fest als themeneutral erklärt (Photopixel etwa), dürfen gleich
+         bleiben — dort ist Gleichbleiben das Ergebnis, kein Drift. */
+      const beweglich = vorher.bilder.filter((b) => !b.fest).length;
+      const neu = vorher.bilder.filter((b, i) => !b.fest && b.url !== nachher.bilder[i].url).length;
+      if (beweglich && neu === 0) klage(seite, `${beweglich} Bild(er) ziehen beim Umschalten nicht mit`);
+      bilder = beweglich ? `${neu}/${beweglich}` : "—";
       /* nach der Zuweisung anhaengen, sonst ueberschreibt sie den Hinweis */
       if (erzwungen) bilder += " · Klick erzwungen, Blatt rechnet";
     }
