@@ -156,13 +156,27 @@ for (const seite of seiten) {
   let bilder = "—";
   if (hell.schalter) {
     const vorher = await tab.evaluate(`({ grund: getComputedStyle(document.body).backgroundColor, bilder: ${bild} })`);
-    await tab.click("#b-thema", { noWaitAfter: true });
-    await tab.waitForTimeout(450);
-    const nachher = await tab.evaluate(`({ grund: getComputedStyle(document.body).backgroundColor, bilder: ${bild} })`);
-    if (vorher.grund === nachher.grund) klage(seite, `Ansichtsschalter ohne Wirkung (${vorher.grund})`);
-    const neu = vorher.bilder.filter((b, i) => b !== nachher.bilder[i]).length;
-    if (vorher.bilder.length && neu === 0) klage(seite, `${vorher.bilder.length} Bild(er) ziehen beim Umschalten nicht mit`);
-    bilder = vorher.bilder.length ? `${neu}/${vorher.bilder.length}` : "—";
+    /* Ein Blatt, das rechnet, laesst den Knopf warten — zoo.html belegt den
+       Hauptthread in Scheiben von ueber zwei Sekunden. Frueher riss dieser
+       Klick den ganzen Lauf ab, und die restlichen Blaetter blieben ungemessen:
+       ein Absturz, der wie ein Ergebnis aussah. Jetzt ist es eine Beanstandung
+       an genau dieser Seite, und der Lauf geht weiter. */
+    let geklickt = true;
+    try {
+      await tab.click("#b-thema", { noWaitAfter: true, timeout: 10000 });
+    } catch {
+      geklickt = false;
+      klage(seite, "Ansichtsschalter binnen 10 s nicht klickbar (Hauptthread belegt?)");
+      bilder = "?";
+    }
+    if (geklickt) {
+      await tab.waitForTimeout(450);
+      const nachher = await tab.evaluate(`({ grund: getComputedStyle(document.body).backgroundColor, bilder: ${bild} })`);
+      if (vorher.grund === nachher.grund) klage(seite, `Ansichtsschalter ohne Wirkung (${vorher.grund})`);
+      const neu = vorher.bilder.filter((b, i) => b !== nachher.bilder[i]).length;
+      if (vorher.bilder.length && neu === 0) klage(seite, `${vorher.bilder.length} Bild(er) ziehen beim Umschalten nicht mit`);
+      bilder = vorher.bilder.length ? `${neu}/${vorher.bilder.length}` : "—";
+    }
   }
   if (fehler.length) klage(seite, `Konsole: ${fehler.join(" | ").slice(0, 200)}`);
   await ctx.close();
