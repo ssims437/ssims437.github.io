@@ -324,6 +324,8 @@
         beweis: "jeder Durchgang packt zurück und vergleicht Byte für Byte, Größe gegen zlib", knopf: false, signet: "balken" },
       { id: "reparatur", titel: "Reparatur", was: "Reed-Solomon über GF(256) — und die Frage, die fast immer fehlt: was passiert bei einem Fehler zu viel?",
         beweis: "drei Ausgänge statt zwei: korrigiert, erkannt, oder still falsch", knopf: false, signet: "block" },
+      { id: "schmiegung", titel: "Schmiegung", was: "JPEG von Hand geschrieben: Farbraum, Teilabtastung, Quantisierung, Bitstrom — jeder Verlust einzeln gemessen.",
+        beweis: "12 selbst geschriebene JPEG-Dateien, bytegenau vom Browser-Deuter zurückgelesen · beide Gegenproben ertappt", knopf: true, signet: "schmiegung" },
       { id: "indexbaum", titel: "Indexbaum", was: "B+-Baum mit gezählten Seitenzugriffen: Index gegen vollständigen Durchlauf, und wo der Planer irrt.",
         beweis: "1891 Bereichsabfragen erschöpfend gegen den stumpfen Durchlauf", knopf: true, signet: "baum" }
     ]},
@@ -962,6 +964,16 @@
         g.strokeRect(s * (.08 + l * .24 + .02), s * y, s * .14, s * hoehe);
         g.globalAlpha = 1;
       });
+    },
+    schmiegung: (g, s, f) => {
+      // ein Verlauf, der in Stufen fällt — Quantisierung als Bild
+      g.fillStyle = f;
+      for (let j = 0; j < 8; j++) for (let i = 0; i < 8; i++) {
+        const w = 1 - Math.min(1, Math.hypot(i - 3.5, j - 3.5) / 5);
+        g.globalAlpha = .1 + Math.round(w * 4) / 4 * .8;
+        g.fillRect(s * (.11 + i * .098), s * (.11 + j * .098), s * .086, s * .086);
+      }
+      g.globalAlpha = 1;
     }
   };
 

@@ -161,21 +161,28 @@ for (const seite of seiten) {
        Klick den ganzen Lauf ab, und die restlichen Blaetter blieben ungemessen:
        ein Absturz, der wie ein Ergebnis aussah. Jetzt ist es eine Beanstandung
        an genau dieser Seite, und der Lauf geht weiter. */
-    let geklickt = true;
+    let geklickt = true, erzwungen = false;
     try {
       await tab.click("#b-thema", { noWaitAfter: true, timeout: 10000 });
     } catch {
-      geklickt = false;
-      klage(seite, "Ansichtsschalter binnen 10 s nicht klickbar (Hauptthread belegt?)");
-      bilder = "?";
+      /* Der gewoehnliche Klick wartet, bis die Seite ruhig ist. Ein rechnendes
+         Blatt wird nie ruhig: zoo.html liefert unter Software-Rendering 4 Bilder
+         je 6 s, mit Grafikkarte 122. Der Schalter ist dort nicht kaputt, nur
+         beschaeftigt - gemessen 363 ms mit GPU gegen ueber 10 s ohne. Deshalb
+         zweiter Versuch ohne Ruhebedingung: was zaehlt, ist die WIRKUNG. */
+      erzwungen = true;
+      try { await tab.dispatchEvent("#b-thema", "click"); }
+      catch { geklickt = false; klage(seite, "Ansichtsschalter reagiert auf keinen Klick"); bilder = "?"; }
     }
     if (geklickt) {
-      await tab.waitForTimeout(450);
+      await tab.waitForTimeout(erzwungen ? 1500 : 450);
       const nachher = await tab.evaluate(`({ grund: getComputedStyle(document.body).backgroundColor, bilder: ${bild} })`);
       if (vorher.grund === nachher.grund) klage(seite, `Ansichtsschalter ohne Wirkung (${vorher.grund})`);
       const neu = vorher.bilder.filter((b, i) => b !== nachher.bilder[i]).length;
       if (vorher.bilder.length && neu === 0) klage(seite, `${vorher.bilder.length} Bild(er) ziehen beim Umschalten nicht mit`);
       bilder = vorher.bilder.length ? `${neu}/${vorher.bilder.length}` : "—";
+      /* nach der Zuweisung anhaengen, sonst ueberschreibt sie den Hinweis */
+      if (erzwungen) bilder += " · Klick erzwungen, Blatt rechnet";
     }
   }
   if (fehler.length) klage(seite, `Konsole: ${fehler.join(" | ").slice(0, 200)}`);
