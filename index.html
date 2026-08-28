@@ -104,6 +104,9 @@
   a.karte .name .pfeil { color:var(--leise); font-weight:400; }
   a.karte:hover .name .pfeil { color:var(--akzent, var(--g1)); }
   a.karte .was { font-size:13.5px; color:var(--tinte); margin-top:1px; }
+  a.karte .feldzeile { font-family:var(--f-fest); font-size:9.5px; letter-spacing:.13em;
+    text-transform:uppercase; color:var(--leise); margin-top:2px; display:flex; align-items:center; gap:6px; }
+  a.karte .feldzeile::before { content:""; width:8px; height:8px; background:var(--akzent, var(--g1)); }
   a.karte .beweis { font-family:var(--f-fest); font-size:11px; color:var(--leise); margin-top:5px;
     padding-left:9px; border-left:2px solid var(--akzent, var(--g1)); }
 
@@ -166,6 +169,12 @@
   <div class="leiste">
     <span class="kl" id="zaehler">je ein Repo, je ein Prüflauf</span>
     <span style="flex:1"></span>
+    <label class="kl" for="s-ordnung" style="display:flex;align-items:center;gap:8px">Ordnung
+      <select id="s-ordnung">
+        <option value="feld">nach Feldern</option>
+        <option value="az">alphabetisch</option>
+      </select>
+    </label>
     <button id="b-thema">Ansicht</button>
   </div>
 
@@ -990,10 +999,44 @@
     g.restore();
   }
 
-  /* ===================== Karten aufbauen ===================== */
+  /* ===================== Karten aufbauen =====================
+     Zwei Ordnungen, derselbe Bestand: nach Feldern (die Gruppe hält den
+     Zusammenhang) oder alphabetisch über alles (wer ein Blatt beim Namen
+     kennt, findet es, ohne erst sein Feld zu suchen). Beide gehen aus
+     denselben Daten hervor, und im Alphabet trägt jede Karte ihr Feld als
+     Farbmarke mit — die Ordnung wechselt, das Blatt bleibt sich gleich. */
+  function karte(b, farbname, feldname) {
+    const a = document.createElement("a");
+    a.className = "karte";
+    a.href = "https://ssims437.github.io/" + b.id + "/";
+    a.style.setProperty("--akzent", "var(" + farbname + ")");
+    const leinwand = document.createElement("canvas");
+    leinwand.width = 88; leinwand.height = 88;
+    leinwand.setAttribute("aria-hidden", "true");
+    const text = document.createElement("div");
+    text.style.minWidth = "0";
+    text.innerHTML =
+      "<div class='name'>" + b.titel + " <span class='pfeil'>→</span></div>" +
+      (feldname ? "<div class='feldzeile'>" + feldname + "</div>" : "") +
+      "<div class='was'>" + b.was + "</div>" +
+      "<div class='beweis'>" + b.beweis + "</div>";
+    a.append(leinwand, text);
+    signetZeichnen(leinwand, b.signet, farbname);
+    return a;
+  }
+
   function aufbauen() {
     const ziel = $("gruppen");
     ziel.textContent = "";
+    if ($("s-ordnung").value === "az") {
+      const gitter = document.createElement("div");
+      gitter.className = "karten";
+      const feldname = new Map(FELDER.filter((f) => !f.offen).map((f) => [f.farbe, f.name]));
+      for (const b of [...ALLE].sort((x, y) => wieDeutsch.compare(x.titel, y.titel)))
+        gitter.append(karte(b, b.farbe, feldname.get(b.farbe) || ""));
+      ziel.append(gitter);
+      return;
+    }
     for (const feld of FELDER) {
       const h = document.createElement("h2");
       h.innerHTML = "<span class='feld'>" + feld.name + "</span> · " + feld.text;
@@ -1008,24 +1051,7 @@
       }
       const gitter = document.createElement("div");
       gitter.className = "karten";
-      for (const b of feld.blaetter) {
-        const a = document.createElement("a");
-        a.className = "karte";
-        a.href = "https://ssims437.github.io/" + b.id + "/";
-        a.style.setProperty("--akzent", "var(" + feld.farbe + ")");
-        const leinwand = document.createElement("canvas");
-        leinwand.width = 88; leinwand.height = 88;
-        leinwand.setAttribute("aria-hidden", "true");
-        const text = document.createElement("div");
-        text.style.minWidth = "0";
-        text.innerHTML =
-          "<div class='name'>" + b.titel + " <span class='pfeil'>→</span></div>" +
-          "<div class='was'>" + b.was + "</div>" +
-          "<div class='beweis'>" + b.beweis + "</div>";
-        a.append(leinwand, text);
-        gitter.append(a);
-        signetZeichnen(leinwand, b.signet, feld.farbe);
-      }
+      for (const b of feld.blaetter) gitter.append(karte(b, feld.farbe));
       ziel.append(gitter);
     }
   }
@@ -1102,6 +1128,7 @@
     neuZeichnen();
   });
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", neuZeichnen);
+  $("s-ordnung").addEventListener("change", aufbauen);
 
   aufbauen();
   {

@@ -90,6 +90,41 @@ const signete = await tab.$$eval("a.karte canvas", (cs) =>
 if (signete > 0) meldung(`${signete} Signet(e) leer geblieben`);
 else in_ordnung("alle Signete gezeichnet");
 
+/* Die Ordnung ist eine Behauptung an beide Wörter: „nach Feldern" heißt
+   gruppiert mit Gruppenkopf, „alphabetisch" heißt wirklich sortiert — und
+   beim Umschalten darf kein Blatt verloren gehen. Nachgeprüft wird beides,
+   hin und zurück. */
+const ordnung = await tab.evaluate(() => {
+  const wahl = document.getElementById("s-ordnung");
+  if (!wahl) return null;
+  const titel = () => [...document.querySelectorAll("#gruppen a.karte .name")]
+    .map((n) => n.textContent.replace("→", "").trim());
+  const kopfe = () => document.querySelectorAll("#gruppen h2").length;
+  const gruppiert = { kopfe: kopfe(), karten: titel().length };
+  wahl.value = "az";
+  wahl.dispatchEvent(new Event("change"));
+  const az = titel();
+  const sortiert = JSON.stringify(az) === JSON.stringify([...az].sort((a, b) => a.localeCompare(b, "de")));
+  const einmal = new Set(az).size === az.length;
+  wahl.value = "feld";
+  wahl.dispatchEvent(new Event("change"));
+  const zurueck = { kopfe: kopfe(), karten: titel().length };
+  return { gruppiert, az: az.length, sortiert, einmal, zurueck, liste: az };
+});
+if (!ordnung) meldung("Ordnungswahl fehlt");
+else {
+  if (ordnung.gruppiert.kopfe === 0 || ordnung.gruppiert.karten !== ERWARTET.length)
+    meldung(`Feldordnung unvollständig (${ordnung.gruppiert.kopfe} Köpfe, ${ordnung.gruppiert.karten} Karten)`);
+  else in_ordnung("nach Feldern: alle Gruppen mit Kopfzeile");
+  if (ordnung.az !== ERWARTET.length) meldung(`Alphabetisch: ${ordnung.az} statt ${ERWARTET.length} Karten`);
+  else if (!ordnung.einmal) meldung("Alphabetisch: ein Blatt doppelt");
+  else if (!ordnung.sortiert) meldung("Alphabetisch: nicht sortiert — " + ordnung.liste.slice(0, 5).join(", "));
+  else in_ordnung("alphabetisch: alle Blätter, wirklich sortiert");
+  if (ordnung.zurueck.kopfe === 0 || ordnung.zurueck.karten !== ERWARTET.length)
+    meldung("Rückwechsel zur Feldordnung scheitert");
+  else in_ordnung("Rückwechsel zur Feldordnung gelungen");
+}
+
 await browser.close();
 server.close();
 
