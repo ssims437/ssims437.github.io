@@ -37,6 +37,7 @@
     --g20: #1F6B8C; /* Strömung & Wirbel */
     --g21: #6B4A8C; /* Nachbarschaft & Raum */
     --g22: #A8471F; /* Geschick & Reflex */
+    --g23: #2E4A6B; /* Lernen & Anpassen */
     --gut:  #4A7A3C;
     --warn: #A32C22;
     --schatten: 0 1px 0 rgba(27,26,22,.05), 0 10px 24px -16px rgba(27,26,22,.5);
@@ -425,6 +426,10 @@
     { name: "Strömung & Wirbel", farbe: "--g20", text: "was passiert, wenn nichts zusammengedrückt werden darf", blaetter: [
       { id: "stroemung", titel: "Strömung", was: "Eine Flüssigkeit in Echtzeit: Tinte mit der Maus rühren, Wirbelstraße hinter dem Zylinder, Zerfall gegen die Formel.",
         beweis: "Zerfallsrate auf 1 % gegen exp(−2νk²t) · Strouhal-Zahl gemessen gegen 0,20", knopf: true, signet: "strudel" }
+    ]},
+    { name: "Lernen & Anpassen", farbe: "--g23", text: "wie aus Beispielen eine Regel entsteht, die sie nicht wörtlich nimmt", blaetter: [
+      { id: "einueben", titel: "Einüben", was: "Rückpropagation von Hand, live beim Lernen zugesehen — der Rückpass gegen die numerische Ableitung gehalten.",
+        beweis: "Gradientencheck über alle Gewichte, Abweichung 5·10⁻¹¹ · der kaputtgemachte Rückpass schlägt an", knopf: true, signet: "einueben" }
     ]}
   ];
 
@@ -983,6 +988,23 @@
         g.fillRect(s * (.11 + i * .098), s * (.11 + j * .098), s * .086, s * .086);
       }
       g.globalAlpha = 1;
+    },
+    einueben: (g, s, f) => {
+      // ein Netz im Kleinen: zwei, drei, ein Knoten — die Schuld fließt rückwärts
+      const knoto = [[.16, .3], [.16, .7], [.5, .22], [.5, .5], [.5, .78], [.84, .5]];
+      g.strokeStyle = f; g.lineWidth = 1; g.globalAlpha = .35;
+      for (let a = 0; a < 2; a++) for (let b = 2; b < 5; b++) {
+        g.beginPath(); g.moveTo(s * knoto[a][0], s * knoto[a][1]);
+        g.lineTo(s * knoto[b][0], s * knoto[b][1]); g.stroke();
+      }
+      for (let b = 2; b < 5; b++) {
+        g.beginPath(); g.moveTo(s * knoto[b][0], s * knoto[b][1]);
+        g.lineTo(s * knoto[5][0], s * knoto[5][1]); g.stroke();
+      }
+      g.globalAlpha = 1; g.fillStyle = f;
+      knoto.forEach(([x, y], i) => {
+        g.beginPath(); g.arc(s * x, s * y, i === 5 ? s * .06 : s * .045, 0, 7); g.fill();
+      });
     }
   };
 
