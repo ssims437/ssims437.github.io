@@ -23,6 +23,7 @@ import { chromium } from "playwright";
 const WURZEL = process.cwd();
 const NUR_AUFBAU = process.argv.includes("--nur-aufbau");
 const ERWARTET = ["plotterblaetter", "redundanz", "reparatur", "schmiegung", "wuerfel", "rechenwerk", "einueben",
+  "knackbar", "phishauge", "klartext", "einbruch",
   "nachkomma", "zeitsprung", "gradtage", "stimmfuehrung", "verzerrung",
   "handschlag", "wegewahl", "frequenzgang", "indexbaum", "auszaehlung", "uebersetzer", "ornament", "augenmass", "vorhersage", "tragwerk", "blocksatz",
   "abgleich", "spielbaum", "mischung", "turnier", "tilgung", "regenbogen",

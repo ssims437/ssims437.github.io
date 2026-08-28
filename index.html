@@ -430,6 +430,16 @@
     { name: "Lernen & Anpassen", farbe: "--g23", text: "wie aus Beispielen eine Regel entsteht, die sie nicht wörtlich nimmt", blaetter: [
       { id: "einueben", titel: "Einüben", was: "Rückpropagation von Hand, live beim Lernen zugesehen — der Rückpass gegen die numerische Ableitung gehalten.",
         beweis: "Gradientencheck über alle Gewichte, Abweichung 5·10⁻¹¹ · der kaputtgemachte Rückpass schlägt an", knopf: true, signet: "einueben" }
+    ]},
+    { name: "Angriff & Abwehr", farbe: "--g24", text: "wie Angreifer denken — und was die Abwehr beweisen muss", blaetter: [
+      { id: "knackbar", titel: "Knackbar", was: "Wörterbuchangriff auf eigene Demo-Konten zum Zusehen — MD5 von Hand, Salting und PBKDF2 als Abwehr, deren Kosten gemessen werden.",
+        beweis: "MD5 gegen alle RFC-1321-Vektoren · Salting zerstört die Wiederverwendung · PBKDF2 rund 60-fach langsamer je Rate", knopf: true, signet: "knackbar" },
+      { id: "phishauge", titel: "Phishing-Auge", was: "Acht erfundene Nachrichten: verdächtige Stellen anklicken — Absender, Zeitdruck, Links, Anlagen. Fehlalarme zählen gegen dich.",
+        beweis: "10 echte Betrugsstellen im Modell · perfekte, leere und panische Markierung einzeln nachgerechnet", knopf: true, signet: "phishauge" },
+      { id: "klartext", titel: "Klartext", was: "Was eine Seite über dich sieht: Tasten-Timing, Mausspur, Fokus, Clipboard — und der Quelltext-Selbstscan beweist, dass nichts nach draußen geht.",
+        beweis: "gesäte Tastenspur exakt im Log · Selbstscan über 9 000 Zeichen ohne Sendekandidaten · eingeschleustes fetch wird ertappt", knopf: true, signet: "klartext" },
+      { id: "einbruch", titel: "Einbruchsprobe", was: "Clickjacking, CSRF und PIN-Raten gegen eine Dummy-App — jede Abwehr live zugeschaltet und hin und zurück nachgerechnet.",
+        beweis: "3 Klicks → 3 Aktionen ohne Schutz, 0 mit · ohne Token fließt Geld, mit wird abgewiesen · Sperrung stoppt nach 3", knopf: true, signet: "einbruch" }
     ]}
   ];
 
@@ -1005,6 +1015,55 @@
       knoto.forEach(([x, y], i) => {
         g.beginPath(); g.arc(s * x, s * y, i === 5 ? s * .06 : s * .045, 0, 7); g.fill();
       });
+    },
+    knackbar: (g, s, f) => {
+      // ein Schloss mit Riss: der Bügel springt auf
+      g.strokeStyle = f; g.lineWidth = 1.8;
+      g.beginPath(); g.arc(s * .5, s * .38, s * .17, Math.PI, 0); g.stroke();
+      g.globalAlpha = .9;
+      g.strokeRect(s * .28, s * .38, s * .44, s * .34);
+      g.globalAlpha = 1;
+      g.beginPath(); g.moveTo(s * .5, s * .48); g.lineTo(s * .44, s * .56); g.lineTo(s * .52, s * .6); g.lineTo(s * .46, s * .68);
+      g.lineWidth = 2.4; g.stroke();
+    },
+    phishauge: (g, s, f) => {
+      // ein Auge mit Haken als Pupille — der Köder liegt offen
+      g.strokeStyle = f; g.lineWidth = 1.6;
+      g.beginPath(); g.moveTo(s * .12, s * .5);
+      g.quadraticCurveTo(s * .5, s * .18, s * .88, s * .5);
+      g.quadraticCurveTo(s * .5, s * .82, s * .12, s * .5);
+      g.closePath(); g.stroke();
+      g.beginPath(); g.arc(s * .5, s * .5, s * .13, 0, 7); g.stroke();
+      g.lineWidth = 2.2; g.beginPath();
+      g.moveTo(s * .42, s * .58); g.lineTo(s * .58, s * .42);
+      g.stroke();
+    },
+    klartext: (g, s, f) => {
+      // drei Tasten, eine davon mit Klanglinien — jede ist gehört worden
+      g.strokeStyle = f; g.lineWidth = 1.4;
+      [[.14, .42], [.38, .42], [.62, .42]].forEach(([x, y]) => g.strokeRect(s * x, s * y, s * .22, s * .22));
+      g.strokeRect(s * .3, s * .66, s * .4, s * .18);
+      g.globalAlpha = .8;
+      [[.25, .34], [.49, .34], [.73, .34]].forEach(([x, y], i) => {
+        g.beginPath(); g.moveTo(s * x, s * (y - .06) - i * 3);
+        g.quadraticCurveTo(s * (x + .03), s * (y - .12) - i * 3, s * (x + .06), s * (y - .06) - i * 3);
+        g.stroke();
+      });
+      g.globalAlpha = 1;
+    },
+    einbruch: (g, s, f) => {
+      // eine aufgebrochene Tür: Rahmen, Blatt, Spalt mit Licht
+      g.strokeStyle = f; g.lineWidth = 1.6;
+      g.strokeRect(s * .18, s * .16, s * .5, s * .68);
+      g.beginPath();
+      g.moveTo(s * .3, s * .1); g.lineTo(s * .3, s * .9);   // das offene Blatt, schräg gezeichnet
+      g.lineTo(s * .46, s * .84);
+      g.stroke();
+      g.globalAlpha = .5; g.setLineDash([3, 3]);
+      g.beginPath(); g.moveTo(s * .62, s * .2); g.lineTo(s * .62, s * .8); g.stroke();
+      g.setLineDash([]); g.globalAlpha = 1;
+      g.fillStyle = f;
+      g.beginPath(); g.arc(s * .74, s * .5, s * .05, 0, 7); g.fill();
     }
   };
 
